@@ -101,11 +101,14 @@ import retrato from "../assets/retrato/recorte-02.png";
           </mask>
         </defs>
 
-        {/* O "r" e o "t" de "Suzarte" ficavam colados — um `dx` pequeno só
-            ali abre um respiro sem mexer no espaçamento do resto do nome,
-            que continua todo ajustado pelo `textLength`. */}
+        {/* O "r" e o "t" de "Suzarte" ficavam colados. Um `dx` em tspan
+            resolvia visualmente no desktop, mas quebra o `lengthAdjust`:
+            medido, o texto passava a ocupar 1080 das 1000 unidades da caixa
+            e vazava — no celular isso cortava/embaralhava letras. Em vez de
+            dx, um espaço bem fino (U+2009) participa do próprio cálculo de
+            espaçamento do textLength, então o ajuste nunca sai da caixa. */}
         <text x="0" y="120" textLength="1000" lengthAdjust="spacing" class="base"
-          >Leane Suza<tspan>r</tspan><tspan dx="6">te</tspan></text
+          >Leane Suzar&#8201;te</text
         >
         <text
           x="0"
@@ -114,7 +117,7 @@ import retrato from "../assets/retrato/recorte-02.png";
           lengthAdjust="spacing"
           class="revelado"
           mask="url(#nome-mascara-alvo)"
-          >Leane Suza<tspan>r</tspan><tspan dx="6">te</tspan></text
+          >Leane Suzar&#8201;te</text
         >
       </svg>
     </span>

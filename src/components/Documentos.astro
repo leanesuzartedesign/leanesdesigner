@@ -199,13 +199,33 @@ const paginas = documentos.flatMap((bloco) =>
     right: calc(var(--gutter) / 3);
   }
 
+  /* A partir do tablet o slide vira grade normal: cada "página" (já
+     agrupada de 4 em 4, sem misturar bloco de empresa diferente) empilha
+     como uma linha da grade, em vez de andar para o lado. Mesma marcação e
+     mesmo JS de sempre — só CSS decide se rola ou empilha. O slide com
+     seta fica reservado para o celular, onde 4 numa linha não cabe. */
   @media (min-width: 40rem) {
     .grade {
       grid-template-columns: repeat(2, 1fr);
     }
+
+    .trilho {
+      flex-direction: column;
+      overflow: visible;
+      scroll-snap-type: none;
+      gap: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    .pagina {
+      scroll-snap-align: none;
+    }
+
+    .seta {
+      display: none;
+    }
   }
 
-  /* 4 peças visíveis por página a partir do desktop. */
+  /* 4 peças visíveis por linha a partir do desktop. */
   @media (min-width: 64rem) {
     .grade {
       grid-template-columns: repeat(4, 1fr);

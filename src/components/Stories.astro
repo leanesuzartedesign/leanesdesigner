@@ -33,17 +33,38 @@ const pecas = stories.flatMap((b) =>
     padding: var(--section-y) var(--gutter);
   }
 
-  /* São 6 peças: colunas fixas em vez de `auto-fill`, para elas preencherem
-     a largura alinhadas, sem sobra na última linha. */
+  /* No celular vira slide: tira o toque de arrastar sem precisar de seta
+     nem script — é o mesmo padrão que já existe em outras seções da página.
+     A partir do tablet volta a ser a grade fixa de sempre. */
   .grade {
-    display: grid;
+    display: flex;
     gap: clamp(0.5rem, 1.5vw, 1rem);
-    grid-template-columns: repeat(2, 1fr);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .grade::-webkit-scrollbar {
+    display: none;
+  }
+
+  figure {
+    flex: 0 0 42%;
+    scroll-snap-align: start;
+    background: var(--bg-alt);
+    overflow: hidden;
   }
 
   @media (min-width: 40rem) {
     .grade {
+      display: grid;
       grid-template-columns: repeat(3, 1fr);
+      overflow-x: visible;
+    }
+
+    figure {
+      flex: initial;
     }
   }
 
@@ -51,11 +72,6 @@ const pecas = stories.flatMap((b) =>
     .grade {
       grid-template-columns: repeat(6, 1fr);
     }
-  }
-
-  figure {
-    background: var(--bg-alt);
-    overflow: hidden;
   }
 
   figure :global(img) {
