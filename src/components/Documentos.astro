@@ -4,31 +4,23 @@ import SectionHead from "./SectionHead.astro";
 import { documentos } from "../data/cases";
 
 /**
- * Apresentações e relatórios institucionais em um slider paginado — em
- * qualquer tamanho de tela, do celular ao desktop. Muda só quantas peças
- * cabem visíveis por página (1, depois 2, depois 4).
+ * Apresentações e relatórios institucionais em slide — em qualquer tamanho
+ * de tela. Cada empresa tem o SEU PRÓPRIO slider (nunca misturam entre si),
+ * e cada peça é uma parada individual do slide — não um grupo fixo de 4.
  *
- * As setas são BOTÕES com um script mínimo. A primeira versão usava âncoras
- * (`href="#pagina"`), para manter a página sem JavaScript, mas o truque briga
- * com o navegador: para "trazer o alvo à vista" ele mexe também na rolagem
- * vertical, e a página pulava a cada clique. Duas tentativas de contornar
- * falharam — alvo pequeno demais não rola nada, alvo grande rola a tela.
+ * Isso importa porque quantas peças cabem visíveis por vez MUDA com a
+ * largura da tela (1 no celular, 2 no tablet, 4 no desktop). Uma primeira
+ * versão agrupava sempre de 4 em 4 e só ajustava colunas via grid — no
+ * celular isso empilhava as 4 peças de um grupo numa coluna só, e um swipe
+ * abria uma página alta em vez de mostrar 1 peça. Aqui cada peça é um item
+ * de grid independente (`grid-auto-flow: column`), e o botão de avançar
+ * rola exatamente uma "tela" — que já contém 1, 2 ou 4 peças conforme o
+ * breakpoint, sem precisar saber esse número de antemão.
  *
- * O pipeline deste repositório prevê exatamente este caso: interação real
- * (e cita carrossel) justifica uma ilha de JavaScript naquele componente.
- * É o único script da página inteira.
- *
- * A paginação respeita o bloco de cada empresa: uma página nunca mistura duas.
+ * As setas são BOTÕES com um script mínimo (mesmo do resto do site): a
+ * versão por âncora (`href="#pagina"`) fazia a página pular na vertical a
+ * cada clique — ver histórico do componente.
  */
-const POR_PAGINA = 4;
-
-const paginas = documentos.flatMap((bloco) =>
-  Array.from({ length: Math.ceil(bloco.pecas.length / POR_PAGINA) }, (_, i) => ({
-    slug: `${bloco.slug}-${i + 1}`,
-    descricao: bloco.descricao,
-    pecas: bloco.pecas.slice(i * POR_PAGINA, (i + 1) * POR_PAGINA),
-  })),
-);
 ---
 
 <section class="docs" aria-labelledby="docs-title">
@@ -38,51 +30,50 @@ const paginas = documentos.flatMap((bloco) =>
     id="docs-title"
   />
 
-  <div class="palco" data-slider>
-    <div
-      class="trilho"
-      tabindex="0"
-      role="group"
-      aria-label="Apresentações e relatórios — role para o lado para ver mais"
-    >
-      {
-        paginas.map((pagina) => (
-          <div class="pagina">
-            <div class="grade">
-              {pagina.pecas.map((src) => (
-                <figure>
-                  <Image
-                    src={src}
-                    alt={pagina.descricao}
-                    widths={[340, 560, 760, 950]}
-                    sizes="(min-width: 64rem) 23vw, (min-width: 40rem) 45vw, 90vw"
-                    loading="lazy"
-                  />
-                </figure>
-              ))}
-            </div>
+  <div class="blocos">
+    {
+      documentos.map((bloco) => (
+        <div class="palco" data-slider>
+          <div
+            class="trilho"
+            tabindex="0"
+            role="group"
+            aria-label={`${bloco.descricao} — role para o lado para ver mais`}
+          >
+            {bloco.pecas.map((src) => (
+              <figure>
+                <Image
+                  src={src}
+                  alt={bloco.descricao}
+                  widths={[340, 560, 760, 950]}
+                  sizes="(min-width: 64rem) 23vw, (min-width: 40rem) 45vw, 90vw"
+                  loading="lazy"
+                />
+              </figure>
+            ))}
           </div>
-        ))
-      }
-    </div>
 
-    <button class="seta anterior" type="button" data-anterior aria-label="Ver peças anteriores">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
-      </svg>
-    </button>
+          <button class="seta anterior" type="button" data-anterior aria-label="Ver peças anteriores">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+            </svg>
+          </button>
 
-    <button class="seta proxima" type="button" data-proxima aria-label="Ver mais peças">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
-      </svg>
-    </button>
+          <button class="seta proxima" type="button" data-proxima aria-label="Ver mais peças">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+            </svg>
+          </button>
+        </div>
+      ))
+    }
   </div>
 </section>
 
 <script>
-  // Único script da página. Rola o trilho uma página por clique — só na
-  // horizontal, sem tocar na rolagem vertical da janela.
+  // Único script da página. Rola o trilho uma "tela" por clique — só na
+  // horizontal, sem tocar na rolagem vertical da janela. Cada slider (um
+  // por empresa) é independente.
   document.querySelectorAll<HTMLElement>("[data-slider]").forEach((palco) => {
     const trilho = palco.querySelector<HTMLElement>(".trilho");
     const anterior = palco.querySelector<HTMLButtonElement>("[data-anterior]");
@@ -120,35 +111,35 @@ const paginas = documentos.flatMap((bloco) =>
     margin-inline: var(--gutter);
   }
 
+  .blocos {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
   .palco {
     position: relative;
   }
 
+  /* Cada peça é uma coluna independente do grid — não um grupo fixo. A
+     largura da coluna é que decide quantas cabem visíveis por vez. */
   .trilho {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    gap: clamp(0.5rem, 1.5vw, 1rem);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+    padding-inline: var(--gutter);
   }
 
   .trilho::-webkit-scrollbar {
     display: none;
   }
 
-  .pagina {
-    flex: 0 0 100%;
-    scroll-snap-align: start;
-    padding-inline: var(--gutter);
-  }
-
-  .grade {
-    display: grid;
-    gap: clamp(0.5rem, 1.5vw, 1rem);
-    grid-template-columns: 1fr;
-  }
-
   figure {
+    scroll-snap-align: start;
     background: var(--bg-alt);
     overflow: hidden;
   }
@@ -200,18 +191,17 @@ const paginas = documentos.flatMap((bloco) =>
     right: calc(var(--gutter) / 3);
   }
 
-  /* Slide em qualquer tamanho de tela — no celular e no desktop. Só o
-     número de peças visíveis por página muda (1 → 2 → 4), o comportamento
-     de arrastar/setas é sempre o mesmo. */
+  /* 2 peças visíveis por vez a partir do tablet. */
   @media (min-width: 40rem) {
-    .grade {
-      grid-template-columns: repeat(2, 1fr);
+    .trilho {
+      grid-auto-columns: calc(50% - clamp(0.5rem, 1.5vw, 1rem) / 2);
     }
   }
 
+  /* 4 peças visíveis por vez a partir do desktop. */
   @media (min-width: 64rem) {
-    .grade {
-      grid-template-columns: repeat(4, 1fr);
+    .trilho {
+      grid-auto-columns: calc(25% - clamp(0.5rem, 1.5vw, 1rem) * 3 / 4);
     }
   }
 </style>
