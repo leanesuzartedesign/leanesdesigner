@@ -1,31 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Hero from "../components/Hero.astro";
-import Vitrine from "../components/Vitrine.astro";
-import Stories from "../components/Stories.astro";
-import Deck from "../components/Deck.astro";
-import Documentos from "../components/Documentos.astro";
-import Videos from "../components/Videos.astro";
-import Servicos from "../components/Servicos.astro";
-import Sobre from "../components/Sobre.astro";
-import Contato from "../components/Contato.astro";
-import Footer from "../components/Footer.astro";
+
+/**
+ * Raiz do domínio reservada de propósito: o portfólio vive em /portfolio.
+ * A Leane pode ter outro uso para www.leanesuzarte.com.br no futuro — até
+ * lá, isso evita a página de erro genérica da Vercel para quem acessar só
+ * o domínio.
+ */
 ---
 
-<Layout
-  title="Leane Suzarte — Design gráfico para empresas"
-  description="Identidade visual, social media, apresentações e vídeo para empresas que vendem serviço sério e precisam de material à altura. Veja as criações e fale comigo."
->
-  <Hero />
-  <main>
-    <Vitrine />
-    <Stories />
-    <Deck />
-    <Documentos />
-    <Videos />
-    <Servicos />
-    <Sobre />
-    <Contato />
-  </main>
-  <Footer />
-</Layout>
+<Layout title="Leane Suzarte" description="" />
