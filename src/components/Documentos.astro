@@ -4,8 +4,9 @@ import SectionHead from "./SectionHead.astro";
 import { documentos } from "../data/cases";
 
 /**
- * Apresentações e relatórios institucionais em um slider paginado — 4 peças
- * visíveis por vez, sem esticar a página.
+ * Apresentações e relatórios institucionais em um slider paginado — em
+ * qualquer tamanho de tela, do celular ao desktop. Muda só quantas peças
+ * cabem visíveis por página (1, depois 2, depois 4).
  *
  * As setas são BOTÕES com um script mínimo. A primeira versão usava âncoras
  * (`href="#pagina"`), para manter a página sem JavaScript, mas o truque briga
@@ -26,9 +27,6 @@ const paginas = documentos.flatMap((bloco) =>
     slug: `${bloco.slug}-${i + 1}`,
     descricao: bloco.descricao,
     pecas: bloco.pecas.slice(i * POR_PAGINA, (i + 1) * POR_PAGINA),
-    /** A primeira página de cada bloco — no desktop marca onde separar
-        visualmente de uma empresa para a outra. */
-    novoBloco: i === 0,
   })),
 );
 ---
@@ -48,8 +46,8 @@ const paginas = documentos.flatMap((bloco) =>
       aria-label="Apresentações e relatórios — role para o lado para ver mais"
     >
       {
-        paginas.map((pagina, i) => (
-          <div class="pagina" data-novo-bloco={i > 0 && pagina.novoBloco ? "" : undefined}>
+        paginas.map((pagina) => (
+          <div class="pagina">
             <div class="grade">
               {pagina.pecas.map((src) => (
                 <figure>
@@ -202,43 +200,15 @@ const paginas = documentos.flatMap((bloco) =>
     right: calc(var(--gutter) / 3);
   }
 
-  /* A partir do tablet o slide vira grade normal: cada "página" (já
-     agrupada de 4 em 4, sem misturar bloco de empresa diferente) empilha
-     como uma linha da grade, em vez de andar para o lado. Mesma marcação e
-     mesmo JS de sempre — só CSS decide se rola ou empilha. O slide com
-     seta fica reservado para o celular, onde 4 numa linha não cabe.
-
-     O respiro entre páginas empilhadas é o MESMO da grade (não um espaço
-     maior à parte) — senão cada página de 4 vira um bloco solto, em vez de
-     ler como uma grade contínua da mesma empresa. Só na troca de empresa
-     (`data-novo-bloco`) o respiro cresce, pra manter visível que é outro
-     projeto. */
+  /* Slide em qualquer tamanho de tela — no celular e no desktop. Só o
+     número de peças visíveis por página muda (1 → 2 → 4), o comportamento
+     de arrastar/setas é sempre o mesmo. */
   @media (min-width: 40rem) {
     .grade {
       grid-template-columns: repeat(2, 1fr);
     }
-
-    .trilho {
-      flex-direction: column;
-      overflow: visible;
-      scroll-snap-type: none;
-      gap: clamp(0.5rem, 1.5vw, 1rem);
-    }
-
-    .pagina {
-      scroll-snap-align: none;
-    }
-
-    .pagina[data-novo-bloco] {
-      margin-top: clamp(2rem, 5vw, 3.5rem);
-    }
-
-    .seta {
-      display: none;
-    }
   }
 
-  /* 4 peças visíveis por linha a partir do desktop. */
   @media (min-width: 64rem) {
     .grade {
       grid-template-columns: repeat(4, 1fr);
