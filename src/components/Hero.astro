@@ -101,8 +101,11 @@ import retrato from "../assets/retrato/recorte-02.png";
           </mask>
         </defs>
 
+        {/* O "r" e o "t" de "Suzarte" ficavam colados — um `dx` pequeno só
+            ali abre um respiro sem mexer no espaçamento do resto do nome,
+            que continua todo ajustado pelo `textLength`. */}
         <text x="0" y="120" textLength="1000" lengthAdjust="spacing" class="base"
-          >Leane Suzarte</text
+          >Leane Suza<tspan>r</tspan><tspan dx="6">te</tspan></text
         >
         <text
           x="0"
@@ -111,7 +114,7 @@ import retrato from "../assets/retrato/recorte-02.png";
           lengthAdjust="spacing"
           class="revelado"
           mask="url(#nome-mascara-alvo)"
-          >Leane Suzarte</text
+          >Leane Suza<tspan>r</tspan><tspan dx="6">te</tspan></text
         >
       </svg>
     </span>
