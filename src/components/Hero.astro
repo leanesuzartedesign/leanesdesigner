@@ -68,11 +68,45 @@ import retrato from "../assets/retrato/recorte-02.png";
 
   {/* O nome é SVG com `textLength`: ocupa a largura exata da capa em qualquer
       viewport, sem depender das métricas da fonte carregada. `lengthAdjust`
-      é "spacing" — ajusta a entreletra, nunca deforma o desenho da letra. */}
-  <h1 class="nome" aria-label="Leane Suzarte">
+      é "spacing" — ajusta a entreletra, nunca deforma o desenho da letra.
+
+      Efeito de contorno + revelação por hover (referência: 21st.dev, "Hover
+      Footer" de mdafsarx, que usa o TextHoverEffect da Aceternity UI).
+      Duas cópias do mesmo texto: uma em contorno fino sempre visível, outra
+      em terracota atrás de uma máscara radial que segue o cursor — só a
+      área ao redor do ponteiro revela a cor. Sem React/Framer Motion: o
+      único script move o centro da máscara; a revelação em si é opacidade
+      via CSS. Em toque (sem hover) fica só o contorno, que já é válido. */}
+  <h1 class="nome" aria-label="Leane Suzarte" data-hover-nome>
     <span class="roll">
       <svg viewBox="0 0 1000 130" aria-hidden="true" focusable="false">
-        <text x="0" y="120" textLength="1000" lengthAdjust="spacing"
+        <defs>
+          <radialGradient
+            id="nome-mascara"
+            gradientUnits="userSpaceOnUse"
+            r="14%"
+            cx="50%"
+            cy="50%"
+          >
+            <stop offset="0%" stop-color="white"></stop>
+            <stop offset="100%" stop-color="black"></stop>
+          </radialGradient>
+          <mask id="nome-mascara-alvo">
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#nome-mascara)"
+            ></rect>
+          </mask>
+        </defs>
+
+        <text x="0" y="120" textLength="1000" lengthAdjust="spacing" class="base"
+          >Leane Suzarte</text
+        >
+        <text
+          x="0"
+          y="120"
+          textLength="1000"
+          lengthAdjust="spacing"
+          class="revelado"
+          mask="url(#nome-mascara-alvo)"
           >Leane Suzarte</text
         >
       </svg>
@@ -273,7 +307,28 @@ import retrato from "../assets/retrato/recorte-02.png";
     font-family: inherit;
     font-size: 157px;
     font-weight: 600;
-    fill: currentColor;
+    fill: transparent;
+  }
+
+  /* Contorno sempre visível — sutil de propósito, é o estado de repouso. */
+  .base {
+    stroke: var(--ink-soft);
+    stroke-width: 1px;
+    opacity: 0.6;
+  }
+
+  /* O terracota só aparece dentro do círculo que segue o cursor. */
+  .revelado {
+    stroke: var(--acento);
+    stroke-width: 1px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  @media (hover: hover) {
+    .nome.ativo .revelado {
+      opacity: 1;
+    }
   }
 
   /* A foto NÃO anima: é a maior peça da tela e a principal candidata a LCP.
@@ -368,3 +423,26 @@ import retrato from "../assets/retrato/recorte-02.png";
     }
   }
 </style>
+
+<script>
+  // Único propósito: mover o centro da máscara radial do nome para onde
+  // está o cursor, em porcentagem do SVG. Sem isso o círculo revelado fica
+  // parado no centro em vez de seguir o mouse.
+  document.querySelectorAll<HTMLElement>("[data-hover-nome]").forEach((nome) => {
+    const svg = nome.querySelector("svg");
+    const mascara = nome.querySelector("radialGradient");
+    if (!svg || !mascara) return;
+
+    const move = (clientX: number, clientY: number) => {
+      const r = svg.getBoundingClientRect();
+      const x = ((clientX - r.left) / r.width) * 100;
+      const y = ((clientY - r.top) / r.height) * 100;
+      mascara.setAttribute("cx", `${x}%`);
+      mascara.setAttribute("cy", `${y}%`);
+    };
+
+    nome.addEventListener("pointerenter", () => nome.classList.add("ativo"));
+    nome.addEventListener("pointerleave", () => nome.classList.remove("ativo"));
+    nome.addEventListener("pointermove", (e) => move(e.clientX, e.clientY));
+  });
+</script>
