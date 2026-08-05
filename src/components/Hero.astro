@@ -311,29 +311,23 @@ import retrato from "../assets/retrato/recorte-02.png";
     font-family: inherit;
     font-size: 157px;
     font-weight: 600;
-    fill: transparent;
-    /* Junções arredondadas: sem isso, o traço fino nas curvas e nos cantos
-       das letras (principalmente em S, a, e — onde o contorno vira sobre
-       si mesmo) fecha mal e parece "quebrado". `linecap: round` evita a
-       mesma falha nas pontas abertas do traço. */
-    stroke-linejoin: round;
-    stroke-linecap: round;
+    stroke: none;
   }
 
-  /* Contorno sempre visível — sutil de propósito, é o estado de repouso.
-     1,4 em vez de 1: na escala em que esse SVG é exibido (viewBox de 1000
-     unidades esticado para ~1280px), 1 unidade vira só ~1,3px reais — fino
-     demais para um acabamento limpo nas curvas do peso 600 da fonte. */
+  /* Contorno vazado (stroke) em letras como "e", "a", "T" tem um defeito
+     real de renderização em SVG: o contorno INTERNO da letra (a abertura)
+     não é um traço fechado de verdade, e o navegador desenha uma linha reta
+     cruzando por dentro pra "fechar" o caminho. Preenchimento sólido nunca
+     teve esse problema — é a mesma técnica que já funcionava antes deste
+     efeito. Aqui o "contorno" vira preenchimento em opacidade baixa. */
   .base {
-    stroke: var(--ink-soft);
-    stroke-width: 1.4;
-    opacity: 0.6;
+    fill: var(--ink-soft);
+    opacity: 0.32;
   }
 
   /* O terracota só aparece dentro do círculo que segue o cursor. */
   .revelado {
-    stroke: var(--acento);
-    stroke-width: 1.4;
+    fill: var(--acento);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
