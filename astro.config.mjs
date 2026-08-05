@@ -3,8 +3,9 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  // Defina o domínio de produção para gerar canonical/OG absolutos:
-  // site: "https://seu-dominio.com",
+  // Ativa canonical e URLs absolutas de Open Graph (o link que aparece
+  // quando a página é compartilhada no WhatsApp/Instagram).
+  site: "https://www.leanesuzarte.com.br",
 
   build: {
     // O padrão ("auto") joga a folha para fora do HTML quando ela passa de
