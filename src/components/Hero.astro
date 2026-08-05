@@ -23,8 +23,12 @@ import retrato from "../assets/retrato/recorte-02.png";
       <Image
         src={retrato}
         alt="Retrato de Leane Suzarte, em preto e branco, de perfil, com um tablet nos braços"
-        widths={[700, 1000, 1080]}
-        sizes="(min-width: 64rem) 74vw, 120vw"
+        widths={[500, 800, 1080]}
+        {/* Precisa bater com a largura real da .moldura, não com a antiga
+           foto em cover de tela cheia — "74vw" ficou órfão de um layout
+           anterior e fazia o navegador pedir um arquivo maior que o
+           necessário. */}
+        sizes="(min-width: 64rem) min(56vw, 44rem), min(96vw, 30rem)"
         loading="eager"
         fetchpriority="high"
       />
