@@ -1,0 +1,370 @@
+---
+import { Image } from "astro:assets";
+import { WHATSAPP_URL } from "../data/site";
+import retrato from "../assets/retrato/recorte-02.png";
+
+/**
+ * Capa em tela cheia, fundo branco — o mesmo da página, para não criar faixa.
+ * Composição da referência: retrato grande e centralizado, dissolvido no
+ * branco por um degradê na base, texto nas duas laterais e o nome gigante
+ * passando **na frente** da foto.
+ *
+ * É o nome na frente que libera a foto a ser grande: ela pode ocupar quase a
+ * altura toda da capa porque o nome cruza por cima em vez de disputar espaço.
+ */
+---
+
+<header class="capa">
+  <div class="foto">
+    {/* A moldura corta a foto: `object-fit: cover` com o enquadramento puxado
+        para cima mostra das mãos para cima, e é o que permite ampliar a
+        figura sem que ela precise de mais espaço em baixo. */}
+    <div class="moldura">
+      <Image
+        src={retrato}
+        alt="Retrato de Leane Suzarte, em preto e branco, de perfil, com um tablet nos braços"
+        widths={[700, 1000, 1080]}
+        sizes="(min-width: 64rem) 74vw, 120vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+  </div>
+
+  <div class="composicao">
+    <div class="lado esquerdo">
+      <p class="selo">
+        <span class="ponto" aria-hidden="true"></span>
+        Disponível para novos projetos
+      </p>
+
+      <p class="manchete">Design gráfico, branding e comunicação visual.</p>
+    </div>
+
+    <div class="lado direito">
+      <p class="bio">
+        Olá, me chamo Leane Suzarte. Designer Gráfico para Mídias Digitais com
+        10 anos de experiência. Especialista em criação visual estratégica,
+        branding e IA estratégica.
+      </p>
+
+      <div class="botoes">
+        <a class="cta primario" href="#posts">
+          Veja meus trabalhos
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M7 1v11M2 7l5 5 5-5" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+        </a>
+
+        <a class="cta secundario" href={WHATSAPP_URL} rel="noopener">
+          Falar comigo no WhatsApp
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M1 13L13 1M13 1H4M13 1v9" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {/* O nome é SVG com `textLength`: ocupa a largura exata da capa em qualquer
+      viewport, sem depender das métricas da fonte carregada. `lengthAdjust`
+      é "spacing" — ajusta a entreletra, nunca deforma o desenho da letra. */}
+  <h1 class="nome" aria-label="Leane Suzarte">
+    <span class="roll">
+      <svg viewBox="0 0 1000 130" aria-hidden="true" focusable="false">
+        <text x="0" y="120" textLength="1000" lengthAdjust="spacing"
+          >Leane Suzarte</text
+        >
+      </svg>
+    </span>
+  </h1>
+</header>
+
+<style>
+  .capa {
+    position: relative;
+    isolation: isolate;
+    min-height: 100svh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding-top: clamp(1.5rem, 4vw, 3rem);
+    overflow: hidden;
+  }
+
+  /* A foto ocupa a capa inteira por trás, ancorada pela base e centralizada. */
+  .foto {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: grid;
+    place-items: end center;
+    pointer-events: none;
+  }
+
+  .moldura {
+    width: min(96vw, 26rem);
+    height: min(66svh, 34rem);
+    overflow: hidden;
+    /* Degradê leve: dissolve só a base no branco da página. Fica na moldura,
+       não na imagem, para o corte e a dissolução acontecerem no mesmo lugar. */
+    mask-image: linear-gradient(
+      to bottom,
+      #000 84%,
+      rgb(0 0 0 / 0.5) 94%,
+      transparent 100%
+    );
+  }
+
+  .moldura :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Enquadramento puxado para o alto: sobra a figura das mãos para cima. */
+    object-position: 50% 0%;
+    /* O zoom é o que amplia de verdade. Com `cover` sozinho, o tamanho da
+       figura fica preso à largura da moldura — e alargar a moldura invadiria
+       os textos das laterais. Ancorado no topo, o corte cai embaixo. */
+    transform: scale(1.3);
+    transform-origin: 50% 0%;
+  }
+
+  .composicao {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    align-content: center;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    padding: 0 var(--gutter) clamp(1rem, 3vw, 2rem);
+  }
+
+  .lado {
+    display: grid;
+    gap: clamp(0.85rem, 2vw, 1.25rem);
+    justify-items: start;
+    max-width: 30rem;
+  }
+
+  .selo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    background: var(--bg);
+  }
+
+  .ponto {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--acento);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ponto {
+      animation: pulsa 2.4s ease-in-out infinite;
+    }
+  }
+
+  @keyframes pulsa {
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  .manchete {
+    font-size: clamp(1.375rem, 2.6vw, 2.25rem);
+    font-weight: 500;
+    line-height: 1.14;
+    letter-spacing: -0.025em;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+
+  .bio {
+    font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
+    color: var(--ink-soft);
+    max-width: 36ch;
+  }
+
+  .botoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.15rem;
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition:
+      background 0.25s ease,
+      color 0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  .primario {
+    background: var(--acento);
+    color: #ffffff;
+    border-color: var(--acento);
+  }
+
+  .primario:hover {
+    background: transparent;
+    color: var(--acento);
+  }
+
+  .secundario {
+    background: var(--bg);
+    color: var(--ink);
+    border-color: var(--line);
+  }
+
+  .secundario:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  .cta svg {
+    transition: transform 0.25s ease;
+  }
+
+  .primario:hover svg {
+    transform: translateY(2px);
+  }
+
+  .secundario:hover svg {
+    transform: translate(2px, -2px);
+  }
+
+  /* O nome passa NA FRENTE da foto — é o que permite a foto ser grande. */
+  .nome {
+    position: relative;
+    z-index: 3;
+    margin: 0;
+    padding: 0 var(--gutter) clamp(0.5rem, 1.5vw, 1rem);
+  }
+
+  .nome .roll {
+    display: block;
+    overflow: hidden;
+  }
+
+  .nome svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .nome text {
+    font-family: inherit;
+    font-size: 157px;
+    font-weight: 600;
+    fill: currentColor;
+  }
+
+  /* Entrada coordenada com a cortina de abertura. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lado > * {
+      animation: entra 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(1.05s + var(--d, 0) * 0.08s);
+    }
+
+    .direito > * {
+      --d: 2;
+    }
+
+    .foto {
+      animation: entra 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.95s both;
+    }
+
+    .nome .roll > svg {
+      animation: sobe 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.85s both;
+    }
+  }
+
+  @keyframes entra {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes sobe {
+    from {
+      transform: translateY(105%);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  /* No mobile a foto fica na metade de baixo e o texto empilha em cima dela. */
+  @media (max-width: 63.999rem) {
+    .composicao {
+      align-content: start;
+      padding-top: clamp(1rem, 4vw, 2rem);
+    }
+
+    .moldura {
+      width: min(96vw, 30rem);
+      height: min(58svh, 30rem);
+    }
+
+    /* Zoom menor no celular: com 1,3 o corte lateral chegava a 62px de cada
+       lado e comia os braços. */
+    .moldura :global(img) {
+      transform: scale(1.12);
+    }
+  }
+
+  /* Desktop: texto à esquerda, texto à direita, foto grande no meio. */
+  @media (min-width: 64rem) {
+    .composicao {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: clamp(2rem, 6vw, 6rem);
+    }
+
+    /* Com a foto grande e centralizada, os textos ficam colados nas bordas:
+       assim eles caem sobre a parte clara da figura (camisa), e não sobre o
+       cabelo ou o tablet, que são escuros. */
+    .lado {
+      max-width: min(24rem, 30vw);
+    }
+
+    .direito {
+      justify-self: end;
+      justify-items: end;
+      text-align: right;
+    }
+
+    .direito .botoes {
+      justify-content: flex-end;
+    }
+
+    /* Ampliada e cortada: a figura fica maior sem pedir mais espaço em
+       baixo, porque a moldura corta abaixo das mãos. */
+    .moldura {
+      width: min(56vw, 44rem);
+      height: min(92svh, 58rem);
+    }
+  }
+</style>

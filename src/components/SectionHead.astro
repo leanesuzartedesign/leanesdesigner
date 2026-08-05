@@ -1,0 +1,41 @@
+---
+/** A assinatura da página: régua de 1px + índice numerado. */
+interface Props {
+  index: string;
+  label: string;
+  /** Id do heading da seção, para o aria-labelledby do <section>. */
+  id?: string;
+}
+
+const { index, label, id } = Astro.props;
+---
+
+<div class="head">
+  <span class="index" aria-hidden="true">[ {index} ]</span>
+  <h2 id={id}>{label}</h2>
+</div>
+
+<style>
+  .head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+    margin-bottom: clamp(1rem, 2vw, 1.75rem);
+  }
+
+  .index,
+  h2 {
+    font-size: var(--meta);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .index {
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

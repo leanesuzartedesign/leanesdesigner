@@ -1,0 +1,87 @@
+---
+import { WHATSAPP_URL } from "../data/site";
+---
+
+<section class="contato" id="contato" aria-labelledby="contato-title">
+  <div class="head">
+    <span class="index" aria-hidden="true">[ 08 ]</span>
+    <span class="rotulo">Contato</span>
+  </div>
+
+  <h2 id="contato-title">Vamos falar sobre o seu projeto.</h2>
+
+  <a class="cta" href={WHATSAPP_URL} rel="noopener">
+    Falar comigo no WhatsApp
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M1 13L13 1M13 1H4M13 1v9" stroke="currentColor" stroke-width="1.5"></path>
+    </svg>
+  </a>
+</section>
+
+<style>
+  .contato {
+    background: var(--dark);
+    color: #ffffff;
+    padding: var(--section-y) var(--gutter);
+    display: grid;
+    justify-items: start;
+    gap: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    width: 100%;
+    border-top: 1px solid rgb(255 255 255 / 0.18);
+    padding-top: 1rem;
+  }
+
+  .index,
+  .rotulo {
+    font-size: var(--meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.65);
+  }
+
+  /* Uma frase, no tamanho de uma manchete de seção — não de um outdoor. */
+  h2 {
+    font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.12;
+    max-width: 16ch;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.15rem;
+    background: var(--acento);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    border: 1px solid var(--acento);
+    border-radius: 999px;
+    transition:
+      background 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .cta svg {
+    transition: transform 0.25s ease;
+  }
+
+  .cta:hover {
+    background: transparent;
+    color: #ffffff;
+  }
+
+  .cta:hover svg {
+    transform: translate(2px, -2px);
+  }
+</style>

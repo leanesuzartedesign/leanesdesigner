@@ -1,0 +1,238 @@
+/* Reset mínimo — base responsiva e compatível, sem framework.
+   Abaixo do reset: tokens e base tipográfica do portfólio Leane Suzarte. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* O botão "Veja meus trabalhos" desce até a segunda seção — suavemente,
+   mas só para quem não pediu menos movimento. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+section[id] {
+  scroll-margin-top: 1rem;
+}
+
+body {
+  min-height: 100svh;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  overflow-wrap: break-word;
+}
+
+/* ------------------------------------------------------------------ */
+/* Fonte — Inter Variable, self-hosted, só os subsets que o pt-BR usa. */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/inter-latin-ext-wght-normal.woff2")
+    format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* --------- */
+/* Tokens    */
+/* --------- */
+
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f4f4f2;
+  --ink: #141414;
+  --ink-soft: #6b6b6b;
+  --line: #e4e4e1;
+  --dark: #0e0e0e;
+
+  /* Acento terracota. Este tom exato foi escolhido por contraste: 4,54:1 com
+     texto branco (passa AA) e 4,54:1 como texto sobre branco. Terracotas mais
+     claros (#E2725B = 3,09:1) reprovariam nos dois usos. */
+  --acento: #b85c38;
+
+  /* Ritmo vertical e gutter — fluidos, sem breakpoint. */
+  --gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --section-y: clamp(1.75rem, 4vw, 3.25rem);
+  --measure: 68ch;
+
+  --meta: 0.75rem;
+}
+
+body {
+  font-family: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: clamp(1rem, 0.97rem + 0.16vw, 1.125rem);
+  color: var(--ink);
+  background: var(--bg);
+  font-synthesis-weight: none;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+/* ------------------------------------------------------------------- */
+/* Preto e branco por padrão; a cor real volta quando o cursor passa.    */
+/* Vale para imagens, não para vídeo — o movimento já é o destaque dele. */
+/* ------------------------------------------------------------------- */
+
+main img,
+.capa img {
+  filter: grayscale(1);
+  transition: filter 0.45s ease;
+}
+
+@media (hover: hover) {
+  main figure:hover img,
+  main li:hover img,
+  main a:hover img {
+    filter: none;
+  }
+}
+
+/* Em toque não há hover: a cor aparece de saída, senão a peça nunca a mostra. */
+@media (hover: none) {
+  main img {
+    filter: none;
+  }
+}
+
+/* Foco visível e consistente — nunca removido. */
+:where(a, button):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------- */
+/* Motion — dirigido por scroll, 100% CSS (`animation-timeline: view()`) */
+/* Sem suporte (Safari/Firefox hoje) o conteúdo simplesmente aparece     */
+/* estático: o movimento é melhoria progressiva, nunca requisito.        */
+/* ------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+
+    /* Filhos entram em cascata: cada um com um atraso próprio via --i. */
+    .reveal-stagger > * {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(6% + var(--i, 0) * 6%) cover 32%;
+    }
+
+    /* Números e títulos "rolam" de baixo, atrás de uma máscara. */
+    .roll {
+      display: block;
+      overflow: hidden;
+    }
+
+    .roll > * {
+      display: block;
+      animation: roll-up linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes roll-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

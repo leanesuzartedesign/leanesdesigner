@@ -1,0 +1,214 @@
+---
+import { Image } from "astro:assets";
+import SectionHead from "./SectionHead.astro";
+import { documentos } from "../data/cases";
+
+/**
+ * Apresentações e relatórios institucionais em um slider paginado — 4 peças
+ * visíveis por vez, sem esticar a página.
+ *
+ * As setas são BOTÕES com um script mínimo. A primeira versão usava âncoras
+ * (`href="#pagina"`), para manter a página sem JavaScript, mas o truque briga
+ * com o navegador: para "trazer o alvo à vista" ele mexe também na rolagem
+ * vertical, e a página pulava a cada clique. Duas tentativas de contornar
+ * falharam — alvo pequeno demais não rola nada, alvo grande rola a tela.
+ *
+ * O pipeline deste repositório prevê exatamente este caso: interação real
+ * (e cita carrossel) justifica uma ilha de JavaScript naquele componente.
+ * É o único script da página inteira.
+ *
+ * A paginação respeita o bloco de cada empresa: uma página nunca mistura duas.
+ */
+const POR_PAGINA = 4;
+
+const paginas = documentos.flatMap((bloco) =>
+  Array.from({ length: Math.ceil(bloco.pecas.length / POR_PAGINA) }, (_, i) => ({
+    slug: `${bloco.slug}-${i + 1}`,
+    descricao: bloco.descricao,
+    pecas: bloco.pecas.slice(i * POR_PAGINA, (i + 1) * POR_PAGINA),
+  })),
+);
+---
+
+<section class="docs" aria-labelledby="docs-title">
+  <SectionHead
+    index="04"
+    label="Apresentações e relatórios institucionais"
+    id="docs-title"
+  />
+
+  <div class="palco" data-slider>
+    <div
+      class="trilho"
+      tabindex="0"
+      role="group"
+      aria-label="Apresentações e relatórios — role para o lado para ver mais"
+    >
+      {
+        paginas.map((pagina) => (
+          <div class="pagina">
+            <div class="grade">
+              {pagina.pecas.map((src) => (
+                <figure>
+                  <Image
+                    src={src}
+                    alt={pagina.descricao}
+                    widths={[320, 560, 800]}
+                    sizes="(min-width: 64rem) 23vw, (min-width: 40rem) 45vw, 90vw"
+                    loading="lazy"
+                  />
+                </figure>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <button class="seta anterior" type="button" data-anterior aria-label="Ver peças anteriores">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </button>
+
+    <button class="seta proxima" type="button" data-proxima aria-label="Ver mais peças">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<script>
+  // Único script da página. Rola o trilho uma página por clique — só na
+  // horizontal, sem tocar na rolagem vertical da janela.
+  document.querySelectorAll<HTMLElement>("[data-slider]").forEach((palco) => {
+    const trilho = palco.querySelector<HTMLElement>(".trilho");
+    const anterior = palco.querySelector<HTMLButtonElement>("[data-anterior]");
+    const proxima = palco.querySelector<HTMLButtonElement>("[data-proxima]");
+    if (!trilho || !anterior || !proxima) return;
+
+    const anda = (sentido: number) =>
+      trilho.scrollBy({ left: trilho.clientWidth * sentido, behavior: "smooth" });
+
+    anterior.addEventListener("click", () => anda(-1));
+    proxima.addEventListener("click", () => anda(1));
+
+    // Esconde a seta que não leva a lugar nenhum.
+    const atualiza = () => {
+      const fim = trilho.scrollWidth - trilho.clientWidth - 1;
+      anterior.hidden = trilho.scrollLeft <= 0;
+      proxima.hidden = trilho.scrollLeft >= fim;
+    };
+
+    trilho.addEventListener("scroll", atualiza, { passive: true });
+    window.addEventListener("resize", atualiza);
+    atualiza();
+  });
+</script>
+
+<style>
+  .docs {
+    padding: var(--section-y) 0;
+    /* Encosta na apresentação comercial: as duas seções são o mesmo assunto,
+       e o respiro cheio entre elas parecia corte. */
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .docs :global(.head) {
+    margin-inline: var(--gutter);
+  }
+
+  .palco {
+    position: relative;
+  }
+
+  .trilho {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .trilho::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pagina {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    padding-inline: var(--gutter);
+  }
+
+  .grade {
+    display: grid;
+    gap: clamp(0.5rem, 1.5vw, 1rem);
+    grid-template-columns: 1fr;
+  }
+
+  figure {
+    background: var(--bg-alt);
+    overflow: hidden;
+  }
+
+  figure :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .seta {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.12);
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .seta[hidden] {
+    display: none;
+  }
+
+  .seta svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .seta:hover {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .anterior {
+    left: calc(var(--gutter) / 3);
+  }
+
+  .proxima {
+    right: calc(var(--gutter) / 3);
+  }
+
+  @media (min-width: 40rem) {
+    .grade {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* 4 peças visíveis por página a partir do desktop. */
+  @media (min-width: 64rem) {
+    .grade {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

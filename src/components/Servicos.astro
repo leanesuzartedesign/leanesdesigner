@@ -1,0 +1,94 @@
+---
+import SectionHead from "./SectionHead.astro";
+
+const servicos = [
+  {
+    nome: "Identidade visual",
+    desc: "Marca, paleta, tipografia e as regras de aplicação — o sistema que faz toda peça seguinte parecer da mesma empresa.",
+  },
+  {
+    nome: "Design de posts",
+    desc: "Direção de arte para feed, carrossel e stories. Criação visual autêntica e estratégica para comunicar a sua mensagem com clareza.",
+  },
+  {
+    nome: "Peças institucionais",
+    desc: "Apresentação comercial, relatório, catálogo e material impresso. On e offline, com a mesma coerência.",
+  },
+  {
+    nome: "Vídeo e Imagem",
+    desc: "Edição de materiais orgânicos e criação com Inteligência Artificial. A tecnologia entra como ferramenta; a curadoria, a direção e o refinamento são meus.",
+  },
+];
+---
+
+<section class="servicos" aria-labelledby="servicos-title">
+  <SectionHead index="06" label="Serviços" id="servicos-title" />
+
+  <ul class="lista reveal-stagger">
+    {
+      servicos.map((s, i) => (
+        <li style={`--i:${i}`}>
+          <span class="n" aria-hidden="true">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <h3>{s.nome}</h3>
+          <p>{s.desc}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .servicos {
+    padding: var(--section-y) var(--gutter);
+    background: var(--bg-alt);
+  }
+
+  .lista {
+    list-style: none;
+    padding: 0;
+    display: grid;
+  }
+
+  .lista li {
+    display: grid;
+    gap: 0.75rem;
+    border-top: 1px solid var(--line);
+    padding: clamp(1.5rem, 3vw, 2.5rem) 0;
+  }
+
+  .lista li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .n {
+    font-size: var(--meta);
+    letter-spacing: 0.12em;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  h3 {
+    font-size: clamp(1.75rem, 5vw, 3rem);
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    color: var(--ink-soft);
+    line-height: 1.6;
+    max-width: 52ch;
+  }
+
+  @media (min-width: 56rem) {
+    .lista li {
+      grid-template-columns: 4rem minmax(0, 1fr) minmax(0, 1fr);
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .n {
+      padding-top: 0.75rem;
+    }
+  }
+</style>

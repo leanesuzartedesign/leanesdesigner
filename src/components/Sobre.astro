@@ -1,0 +1,225 @@
+---
+import { Image } from "astro:assets";
+import SectionHead from "./SectionHead.astro";
+import retrato from "../assets/retrato/recorte-01.png";
+
+/**
+ * "Mais sobre mim" no formato da referência (frameblox About 17): painel
+ * claro e arredondado à esquerda, com o retrato recortado TRANSBORDANDO por
+ * cima da borda superior do painel; à direita, sobrancelha, manchete,
+ * parágrafo curto e o gráfico de habilidades.
+ *
+ * As ferramentas vieram da imagem que a Leane enviou. Os NÍVEIS abaixo são a
+ * minha leitura do comprimento das barras naquela imagem — se algum estiver
+ * fora, é só trocar o número aqui.
+ */
+const habilidades = [
+  { nome: "Corel Draw", nivel: 88 },
+  { nome: "Canva PRO", nivel: 100 },
+  { nome: "Adobe Photoshop", nivel: 58 },
+  { nome: "Illustrator", nivel: 85 },
+  { nome: "CapCut", nivel: 88 },
+  { nome: "Trello", nivel: 85 },
+  { nome: "Monday", nivel: 88 },
+];
+---
+
+<section class="sobre" aria-labelledby="sobre-title">
+  <SectionHead index="07" label="Mais sobre mim" id="sobre-title" />
+
+  <div class="conteudo">
+    <div class="painel">
+      <div class="foto">
+        <Image
+          src={retrato}
+          alt="Retrato de Leane Suzarte, em preto e branco, segurando um tablet e uma caneta"
+          widths={[500, 800, 1080]}
+          sizes="(min-width: 64rem) 40rem, 92vw"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <div class="texto">
+      <p class="sobrancelha">
+        Leane Suzarte — Designer Gráfico para Mídias Digitais
+      </p>
+
+      <h3>Dez anos traduzindo negócios em imagem.</h3>
+
+      <p class="paragrafo">
+        Ao longo de uma década, atendi projetos de áreas muito diversas. Essa
+        pluralidade me trouxe a clareza de que um bom design não depende do
+        segmento, mas sim de entender profundamente o que cada projeto precisa
+        comunicar. Minha base é unir estética, técnica e escuta ativa para
+        construir um visual sólido, autêntico e alinhado aos seus objetivos.
+      </p>
+
+      {/* A barra é decorativa: quem usa leitor de tela ouve o nível escrito
+          por extenso, não uma porcentagem solta sem contexto. */}
+      <ul class="habilidades reveal-stagger">
+        {
+          habilidades.map((h, i) => (
+            <li style={`--i:${i};--nivel:${h.nivel}%`}>
+              <span class="rotulo">{h.nome}</span>
+              <span class="barra" aria-hidden="true">
+                <span class="preenchimento" />
+              </span>
+              <span class="visualmente-oculto">nível {h.nivel} de 100</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sobre {
+    padding: var(--section-y) var(--gutter);
+  }
+
+  .conteudo {
+    /* Quanto a figura sobe para fora do painel — o gesto da referência. */
+    --transbordo: clamp(3rem, 8vw, 6rem);
+
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    /* `stretch`: o painel acompanha a altura do texto. É isso que faz a foto
+       e o texto começarem e terminarem exatamente nas mesmas linhas — o topo
+       da foto é o topo do texto (o painel desce o transbordo e a foto sobe o
+       mesmo tanto), e o painel se estica até a base do texto. */
+    align-items: stretch;
+  }
+
+  /* O painel é o fundo claro; a foto sobe além do topo dele. */
+  .painel {
+    position: relative;
+    background: var(--bg-alt);
+    border-radius: 1.25rem;
+    margin-top: var(--transbordo);
+    min-height: clamp(16rem, 36svh, 26rem);
+  }
+
+  .foto {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    top: calc(var(--transbordo) * -1);
+    bottom: 0;
+    /* Larga de propósito: alinhar topo e base com o texto obriga a caixa a
+       ter a altura do texto, e `cover` corta os lados. Quanto mais larga a
+       caixa, menor esse corte. */
+    width: min(100%, 30rem);
+  }
+
+  .foto :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Ancorada no alto: o corte, quando houver, cai embaixo. */
+    object-position: 50% 0%;
+  }
+
+  .texto {
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    align-content: start;
+  }
+
+  .sobrancelha {
+    font-size: var(--meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  h3 {
+    font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    max-width: 18ch;
+  }
+
+  .paragrafo {
+    color: var(--ink-soft);
+    line-height: 1.65;
+    max-width: 52ch;
+  }
+
+  .habilidades {
+    list-style: none;
+    padding: 0;
+    margin-top: clamp(0.5rem, 2vw, 1rem);
+    display: grid;
+    gap: clamp(0.6rem, 1.5vw, 0.85rem);
+    max-width: 34rem;
+  }
+
+  .habilidades li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(5rem, 9rem);
+    gap: 1.25rem;
+    align-items: center;
+  }
+
+  .rotulo {
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+  }
+
+  .visualmente-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Fina e cinza: aqui a barra é uma medida discreta, não um elemento de
+     destaque. O terracota fica reservado para a ação (os botões). */
+  .barra {
+    height: 4px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .preenchimento {
+    display: block;
+    height: 100%;
+    width: var(--nivel);
+    background: var(--ink-soft);
+    border-radius: 999px;
+    transform-origin: left center;
+  }
+
+  /* A barra cresce quando a seção entra na tela. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .preenchimento {
+        animation: enche linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 40%;
+      }
+    }
+  }
+
+  @keyframes enche {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .conteudo {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+</style>

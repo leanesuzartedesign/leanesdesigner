@@ -1,0 +1,128 @@
+---
+import { videos } from "../data/cases";
+import SectionHead from "./SectionHead.astro";
+
+/**
+ * Vídeos no arranjo da referência: cinco peças em leque, a do centro de
+ * frente e maior, as laterais girando para dentro em perspectiva e as das
+ * pontas menores ainda.
+ *
+ * Tocam sozinhas, mudas e em loop — é a peça em movimento que interessa aqui,
+ * não o controle de player.
+ */
+const meio = (videos.length - 1) / 2;
+
+const cards = videos.map((v, i) => {
+  const d = i - meio; // negativo à esquerda, positivo à direita
+  const dist = Math.abs(d);
+  return {
+    ...v,
+    /** Só o do meio toca sozinho; os outros esperam um clique. */
+    central: dist === 0,
+    giro: (-d * 26).toFixed(1),
+    escala: (1 - dist * 0.12).toFixed(3),
+    recuo: (dist * 60).toFixed(0),
+    z: videos.length - Math.round(dist * 2),
+  };
+});
+---
+
+<section class="videos" aria-labelledby="videos-title">
+  <SectionHead index="05" label="Vídeo e movimento" id="videos-title" />
+
+  <div class="leque">
+    {
+      cards.map((c) => (
+        <figure
+          style={`--giro:${c.giro}deg;--escala:${c.escala};--recuo:${c.recuo}px;--z:${c.z}`}
+        >
+          {/* O do centro toca sozinho, mudo e em loop. Os outros ficam com
+              o poster e `preload="none"`: só baixam se a pessoa der play —
+              é o que segura o peso da seção. */}
+          <video
+            src={c.src}
+            poster={c.poster}
+            autoplay={c.central}
+            muted
+            loop
+            playsinline
+            controls={!c.central}
+            preload={c.central ? "metadata" : "none"}
+            aria-label={c.alt}
+          />
+        </figure>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .videos {
+    padding: var(--section-y) var(--gutter);
+    overflow: hidden;
+  }
+
+  .leque {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.25rem, 1vw, 0.75rem);
+    perspective: 1600px;
+    /* Colado no título: o respiro grande separava demais os dois. */
+    padding-block: clamp(0.5rem, 1.5vw, 1rem);
+  }
+
+  figure {
+    flex: 0 0 auto;
+    margin: 0;
+    width: clamp(8rem, 19vw, 20rem);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--ink);
+    box-shadow: 0 1.25rem 2.5rem rgb(0 0 0 / 0.22);
+    z-index: var(--z);
+    transform: translateZ(calc(var(--recuo) * -1)) rotateY(var(--giro))
+      scale(var(--escala));
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+  }
+
+  /* Passar o cursor endireita a peça e traz para a frente. */
+  @media (hover: hover) {
+    figure:hover {
+      transform: none;
+      z-index: 10;
+    }
+  }
+
+  /* No celular o leque não cabe: com cinco peças na tela, cada uma ficaria
+     com ~50px de largura. Vira um carrossel de peças grandes. */
+  @media (max-width: 47.999rem) {
+    .leque {
+      justify-content: flex-start;
+      perspective: none;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 0.75rem;
+      padding-inline: var(--gutter);
+      margin-inline: calc(var(--gutter) * -1);
+      scrollbar-width: none;
+    }
+
+    .leque::-webkit-scrollbar {
+      display: none;
+    }
+
+    figure {
+      width: 62vw;
+      transform: none;
+      scroll-snap-align: center;
+    }
+  }
+</style>
