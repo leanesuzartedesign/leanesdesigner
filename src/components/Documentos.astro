@@ -5,22 +5,27 @@ import { documentos } from "../data/cases";
 
 /**
  * Apresentações e relatórios institucionais em slide — em qualquer tamanho
- * de tela. Cada empresa tem o SEU PRÓPRIO slider (nunca misturam entre si),
- * e cada peça é uma parada individual do slide — não um grupo fixo de 4.
+ * de tela, numa ÚNICA linha (um só slider, não um por empresa empilhado —
+ * isso lia como duas linhas no desktop). As peças de cada empresa continuam
+ * juntas e em ordem dentro da sequência, só não têm mais um trilho próprio.
  *
- * Isso importa porque quantas peças cabem visíveis por vez MUDA com a
- * largura da tela (1 no celular, 2 no tablet, 4 no desktop). Uma primeira
- * versão agrupava sempre de 4 em 4 e só ajustava colunas via grid — no
- * celular isso empilhava as 4 peças de um grupo numa coluna só, e um swipe
- * abria uma página alta em vez de mostrar 1 peça. Aqui cada peça é um item
- * de grid independente (`grid-auto-flow: column`), e o botão de avançar
- * rola exatamente uma "tela" — que já contém 1, 2 ou 4 peças conforme o
+ * Cada peça é uma parada individual do slide — não um grupo fixo de 4. Isso
+ * importa porque quantas peças cabem visíveis por vez MUDA com a largura da
+ * tela (1 no celular, 2 no tablet, 4 no desktop). Uma primeira versão
+ * agrupava sempre de 4 em 4 e só ajustava colunas via grid — no celular isso
+ * empilhava as 4 peças de um grupo numa coluna só, e um swipe abria uma
+ * página alta em vez de mostrar 1 peça. Aqui cada peça é um item de grid
+ * independente (`grid-auto-flow: column`), e o botão de avançar rola
+ * exatamente uma "tela" — que já contém 1, 2 ou 4 peças conforme o
  * breakpoint, sem precisar saber esse número de antemão.
  *
  * As setas são BOTÕES com um script mínimo (mesmo do resto do site): a
  * versão por âncora (`href="#pagina"`) fazia a página pular na vertical a
  * cada clique — ver histórico do componente.
  */
+const pecas = documentos.flatMap((bloco) =>
+  bloco.pecas.map((src) => ({ src, alt: bloco.descricao })),
+);
 ---
 
 <section class="docs" aria-labelledby="docs-title">
@@ -30,50 +35,43 @@ import { documentos } from "../data/cases";
     id="docs-title"
   />
 
-  <div class="blocos">
-    {
-      documentos.map((bloco) => (
-        <div class="palco" data-slider>
-          <div
-            class="trilho"
-            tabindex="0"
-            role="group"
-            aria-label={`${bloco.descricao} — role para o lado para ver mais`}
-          >
-            {bloco.pecas.map((src) => (
-              <figure>
-                <Image
-                  src={src}
-                  alt={bloco.descricao}
-                  widths={[340, 560, 760, 950]}
-                  sizes="(min-width: 64rem) 23vw, (min-width: 40rem) 45vw, 90vw"
-                  loading="lazy"
-                />
-              </figure>
-            ))}
-          </div>
+  <div class="palco" data-slider>
+    <div
+      class="trilho"
+      tabindex="0"
+      role="group"
+      aria-label="Apresentações e relatórios institucionais — role para o lado para ver mais"
+    >
+      {pecas.map((peca) => (
+        <figure>
+          <Image
+            src={peca.src}
+            alt={peca.alt}
+            widths={[340, 560, 760, 950]}
+            sizes="(min-width: 64rem) 23vw, (min-width: 40rem) 45vw, 90vw"
+            loading="lazy"
+          />
+        </figure>
+      ))}
+    </div>
 
-          <button class="seta anterior" type="button" data-anterior aria-label="Ver peças anteriores">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
-            </svg>
-          </button>
+    <button class="seta anterior" type="button" data-anterior aria-label="Ver peças anteriores">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </button>
 
-          <button class="seta proxima" type="button" data-proxima aria-label="Ver mais peças">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
-            </svg>
-          </button>
-        </div>
-      ))
-    }
+    <button class="seta proxima" type="button" data-proxima aria-label="Ver mais peças">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </button>
   </div>
 </section>
 
 <script>
   // Único script da página. Rola o trilho uma "tela" por clique — só na
-  // horizontal, sem tocar na rolagem vertical da janela. Cada slider (um
-  // por empresa) é independente.
+  // horizontal, sem tocar na rolagem vertical da janela.
   document.querySelectorAll<HTMLElement>("[data-slider]").forEach((palco) => {
     const trilho = palco.querySelector<HTMLElement>(".trilho");
     const anterior = palco.querySelector<HTMLButtonElement>("[data-anterior]");
@@ -109,11 +107,6 @@ import { documentos } from "../data/cases";
 
   .docs :global(.head) {
     margin-inline: var(--gutter);
-  }
-
-  .blocos {
-    display: grid;
-    gap: clamp(1.5rem, 4vw, 2.5rem);
   }
 
   .palco {
