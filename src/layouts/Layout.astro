@@ -12,11 +12,21 @@ const { title = "Landingbase", description = "" } = Astro.props;
 const canonical = Astro.site
   ? new URL(Astro.url.pathname, Astro.site)
   : undefined;
+
+const ano = new Date().getFullYear();
+// Comentário HTML real precisa ser injetado como markup cru — dentro de
+// <!-- --> normal o Astro não avalia {expressões}, só copia o texto literal.
+const avisoDireitos = `<!--
+  © ${ano} Leane Suzarte. Todos os direitos reservados.
+  O código-fonte (HTML/CSS/JS) deste site é propriedade de Leane Suzarte e não
+  pode ser copiado, reaproveitado como base ou redistribuído sem autorização.
+-->`;
 ---
 
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <Fragment set:html={avisoDireitos} />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/favicon.png" />

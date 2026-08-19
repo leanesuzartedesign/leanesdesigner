@@ -13,4 +13,18 @@ export default defineConfig({
     // (única, sem JS) inlinar sempre é mais rápido do que uma requisição a mais.
     inlineStylesheets: "always",
   },
+
+  vite: {
+    build: {
+      // Terser ofusca mais que o esbuild padrão: encurta nomes de variáveis e
+      // funções, remove comentários e console.log do bundle de produção —
+      // dificulta reaproveitar o JS só olhando o código entregue ao navegador.
+      minify: "terser",
+      terserOptions: {
+        compress: { drop_console: true },
+        mangle: true,
+        format: { comments: false },
+      },
+    },
+  },
 });
