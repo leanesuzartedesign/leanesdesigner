@@ -52,10 +52,17 @@ const angela = pasta(
   }),
 );
 
+// 04 (Quadro de Beneficiários) e 09 (Sugestões) ficam de fora do portfólio —
+// dados internos/institucionais que não devem aparecer publicamente.
 const maelalu = pasta(
-  import.meta.glob<{ default: ImageMetadata }>("../assets/docs/maelalu/*.png", {
-    eager: true,
-  }),
+  import.meta.glob<{ default: ImageMetadata }>(
+    [
+      "../assets/docs/maelalu/*.png",
+      "!../assets/docs/maelalu/04.png",
+      "!../assets/docs/maelalu/09.png",
+    ],
+    { eager: true },
+  ),
 );
 
 export const deck = pasta(
