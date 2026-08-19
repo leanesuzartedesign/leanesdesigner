@@ -1,0 +1,44 @@
+---
+// Proteção anti-cópia para a página de portfólio.
+// Aviso: dificulta a cópia casual (clique direito, arrastar, salvar, print screen
+// da tela via DevTools), mas não impede print/screenshot do sistema operacional —
+// isso é uma limitação de qualquer site.
+---
+
+<style is:global>
+  /* Bloqueia seleção de texto e "arrastar" nas imagens do portfólio */
+  img {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+    pointer-events: auto;
+  }
+
+  /* Impede que a imagem de fundo apareça ao tentar arrastar/soltar */
+  img::selection {
+    background: transparent;
+  }
+</style>
+
+<script>
+  // Bloqueia menu de contexto (botão direito) em toda a página
+  document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  // Impede arrastar imagens (que abre "salvar imagem como" em alguns navegadores)
+  document.addEventListener("dragstart", (e) => {
+    if ((e.target as HTMLElement).tagName === "IMG") e.preventDefault();
+  });
+
+  // Bloqueia atalhos comuns de inspeção/salvamento
+  document.addEventListener("keydown", (e) => {
+    const key = e.key.toLowerCase();
+    const blocked =
+      e.key === "F12" ||
+      (e.ctrlKey && key === "u") || // ver código-fonte
+      (e.ctrlKey && key === "s") || // salvar página
+      (e.ctrlKey && e.shiftKey && (key === "i" || key === "c" || key === "j")); // devtools
+
+    if (blocked) e.preventDefault();
+  });
+</script>
