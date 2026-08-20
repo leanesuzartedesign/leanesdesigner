@@ -25,11 +25,15 @@ const eventosParaIlha = await Promise.all(
     nome: evento.nome,
     fotos: await Promise.all(
       evento.pecas.map(async (peca) => {
-        const otimizada = await getImage({ src: peca, width: 360 });
+        const [miniatura, grande] = await Promise.all([
+          getImage({ src: peca, width: 360 }),
+          getImage({ src: peca, width: 1200 }),
+        ]);
         return {
-          src: otimizada.src,
-          width: otimizada.attributes.width,
-          height: otimizada.attributes.height,
+          src: miniatura.src,
+          width: miniatura.attributes.width,
+          height: miniatura.attributes.height,
+          srcGrande: grande.src,
           alt: `Peça da identidade visual — ${evento.nome}`,
         };
       }),
