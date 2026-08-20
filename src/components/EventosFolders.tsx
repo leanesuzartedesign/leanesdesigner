@@ -112,9 +112,13 @@ export default function EventosFolders({ eventos }: Props) {
                     transition={{ duration: 0.15 }}
                   >
                     <div className="evt-leque">
-                      {evento.fotos.slice(0, 6).map((foto, i, arr) => {
+                      {evento.fotos.map((foto, i, arr) => {
                         const meio = (arr.length - 1) / 2;
                         const d = i - meio;
+                        // Com mais peças, cada uma abre um pouco menos de
+                        // leque — senão as pontas saem rodadas demais e o
+                        // espalhado fica maior que o cartão.
+                        const escala = Math.min(1, 5 / arr.length);
                         return (
                           <motion.img
                             key={foto.src}
@@ -130,9 +134,9 @@ export default function EventosFolders({ eventos }: Props) {
                             animate={{
                               opacity: 1,
                               scale: 1,
-                              x: d * 34,
-                              y: -Math.abs(d) * 10,
-                              rotate: d * 9,
+                              x: d * 34 * escala,
+                              y: -Math.abs(d) * 10 * escala,
+                              rotate: d * 9 * escala,
                             }}
                             exit={{ opacity: 0, scale: 0.4, y: 30, rotate: 0 }}
                             transition={{ ...MOLA, delay: i * 0.045 }}
