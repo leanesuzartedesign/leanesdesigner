@@ -46,6 +46,17 @@ export default function EventosFolders({ eventos }: Props) {
 
   return (
     <>
+      {/* Gradiente único, compartilhado por todas as pastas — dá o volume
+          clarinho-em-cima/escuro-embaixo do ícone de referência. */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <defs>
+          <linearGradient id="evt-gradiente-pasta" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#cf8058" />
+            <stop offset="1" stopColor="#8a4526" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       <ul className="evt-lista">
         {eventos.map((evento) => {
           const estaAberta = aberta === evento.slug;
@@ -66,25 +77,36 @@ export default function EventosFolders({ eventos }: Props) {
                 aria-expanded={estaAberta}
                 onClick={alterna}
               >
-                <motion.svg
+                <svg
                   className="evt-icone"
-                  viewBox="0 0 24 24"
-                  preserveAspectRatio="none"
+                  viewBox="0 0 100 75"
                   aria-hidden="true"
                   focusable="false"
-                  animate={{ rotateX: estaAberta ? -14 : 0, y: estaAberta ? 2 : 0 }}
-                  transition={MOLA}
-                  style={{ transformPerspective: 320 }}
                 >
-                  <path
-                    d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.379a1.5 1.5 0 0 1 1.06.44l1.122 1.12a1.5 1.5 0 0 0 1.06.44H19.5A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"
-                    fill="var(--bg-alt)"
-                    stroke="currentColor"
-                    strokeWidth={0.5}
-                    strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
+                  {/* Aba — atrás do corpo, só a ponta de cima aparece. */}
+                  <motion.rect
+                    x={8}
+                    y={8}
+                    width={42}
+                    height={18}
+                    rx={6}
+                    fill="url(#evt-gradiente-pasta)"
+                    animate={{ rotateX: estaAberta ? -18 : 0 }}
+                    transition={MOLA}
+                    style={{ transformOrigin: "29px 8px", transformPerspective: 200 }}
                   />
-                </motion.svg>
+                  {/* Corpo — desenhado depois, por isso cobre a base da aba. */}
+                  <motion.rect
+                    x={6}
+                    y={22}
+                    width={88}
+                    height={46}
+                    rx={6}
+                    fill="url(#evt-gradiente-pasta)"
+                    animate={{ y: estaAberta ? 20 : 22 }}
+                    transition={MOLA}
+                  />
+                </svg>
                 <span className="evt-conteudo">
                   <span className="evt-nome">{evento.nome}</span>
                   <span className="evt-contagem">

@@ -32,44 +32,44 @@
   color: inherit;
 }
 
-/* O traçado da pasta preenche o cartão inteiro — é ele que faz de
-   moldura, não uma caixa por fora. */
+/* O desenho da pasta preenche o cartão inteiro — aba + corpo com
+   gradiente, é ele que faz de moldura, não uma caixa por fora. */
 .evt-icone {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  color: var(--line);
-  transition: color 0.2s ease;
+  filter: drop-shadow(0 0.5rem 1rem rgb(0 0 0 / 0.12));
 }
 
-.evt-item[data-aberta="true"] .evt-icone {
-  color: var(--acento);
-}
-
-/* Posicionado nas proporções do próprio traçado (viewBox 24×24): o corpo
-   da pasta vai de ~35% a ~79% da altura — o texto fica ancorado perto do
-   fim desse miolo, com uma margem que respeita o desenho. */
+/* Posicionado nas proporções do próprio desenho (viewBox 100×75): o
+   corpo vai de y=22 a y=68 (~29% a ~91% da altura) — o texto fica no
+   meio dessa área livre, abaixo de onde a aba se sobrepõe. */
 .evt-conteudo {
   position: absolute;
-  left: 15%;
+  left: 14%;
   right: 10%;
-  bottom: 21%;
+  top: 40%;
+  bottom: 12%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 0.35rem;
 }
 
 .evt-nome {
   font-weight: 600;
   font-size: 1.05rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
 }
 
 .evt-contagem {
-  color: var(--ink-soft);
+  color: rgb(255 255 255 / 0.8);
   font-size: var(--meta);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
 }
 
 /* Painel que estoura por cima do cartão quando a pasta abre. */
