@@ -153,7 +153,7 @@ export default function EventosFolders({ eventos }: Props) {
                     >
                       <span className="evt-puxador-barra" aria-hidden="true" />
                       <span className="evt-dica">
-                        Toque numa peça pra ver grande · arraste pra baixo pra
+                        Toque na imagem pra ampliar · arraste pra baixo pra
                         fechar
                       </span>
                     </motion.div>
