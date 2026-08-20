@@ -20,56 +20,39 @@
 
 .evt-gatilho {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   width: 100%;
   aspect-ratio: 4 / 3;
-  padding: 0;
-  border: none;
-  background: none;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--bg-alt);
   cursor: pointer;
   text-align: left;
   font: inherit;
   color: inherit;
-}
-
-/* A aba — pedaço de pasta que fica por cima, à esquerda, como uma pasta
-   suspensa de verdade. Fica atrás do corpo (z-index menor) e só a ponta
-   de cima aparece. */
-.evt-aba {
-  position: absolute;
-  top: 0;
-  left: 6%;
-  width: 46%;
-  height: 20%;
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  border-bottom: none;
-  border-radius: 0.5rem 0.75rem 0 0;
-  transform-origin: top center;
-}
-
-/* O corpo — a pasta propriamente dita, começa um pouco abaixo do topo
-   pra deixar a aba visível por cima. */
-.evt-corpo {
-  position: absolute;
-  inset: 12% 0 0 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 1.1rem 1.25rem;
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  border-radius: 0.4rem;
   transition: border-color 0.3s ease;
 }
 
-.evt-item[data-aberta="true"] .evt-aba,
-.evt-item[data-aberta="true"] .evt-corpo {
+.evt-item[data-aberta="true"] .evt-gatilho {
   border-color: var(--acento);
 }
 
+.evt-icone {
+  width: 2rem;
+  height: 2rem;
+  color: var(--ink-soft);
+  transition: color 0.2s ease;
+}
+
+.evt-item[data-aberta="true"] .evt-icone {
+  color: var(--acento);
+}
+
 .evt-nome {
+  margin-top: auto;
   font-weight: 600;
   font-size: 1.05rem;
 }

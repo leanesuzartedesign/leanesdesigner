@@ -66,24 +66,28 @@ export default function EventosFolders({ eventos }: Props) {
                 aria-expanded={estaAberta}
                 onClick={alterna}
               >
-                <motion.span
-                  className="evt-aba"
+                <motion.svg
+                  className="evt-icone"
+                  viewBox="0 0 24 24"
                   aria-hidden="true"
-                  animate={{ rotateX: estaAberta ? -22 : 0, y: estaAberta ? 3 : 0 }}
+                  focusable="false"
+                  animate={{ rotateX: estaAberta ? -20 : 0, y: estaAberta ? 2 : 0 }}
                   transition={MOLA}
-                  style={{ transformPerspective: 240 }}
-                />
-                <motion.span
-                  className="evt-corpo"
-                  animate={{ y: estaAberta ? -4 : 0 }}
-                  transition={MOLA}
+                  style={{ transformPerspective: 200 }}
                 >
-                  <span className="evt-nome">{evento.nome}</span>
-                  <span className="evt-contagem">
-                    {evento.fotos.length}{" "}
-                    {evento.fotos.length === 1 ? "peça" : "peças"}
-                  </span>
-                </motion.span>
+                  <path
+                    d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.379a1.5 1.5 0 0 1 1.06.44l1.122 1.12a1.5 1.5 0 0 0 1.06.44H19.5A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.4}
+                    strokeLinejoin="round"
+                  />
+                </motion.svg>
+                <span className="evt-nome">{evento.nome}</span>
+                <span className="evt-contagem">
+                  {evento.fotos.length}{" "}
+                  {evento.fotos.length === 1 ? "peça" : "peças"}
+                </span>
               </button>
 
               <AnimatePresence>
