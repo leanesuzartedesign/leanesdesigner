@@ -1,0 +1,277 @@
+---
+import { Image } from "astro:assets";
+import SectionHead from "./SectionHead.astro";
+import { eventos } from "../data/cases";
+
+/**
+ * Identidade visual e material gráfico de eventos — cada projeto é uma
+ * "pasta": fechada mostra só o nome e a contagem de peças; clicar abre e
+ * as peças saem em leque, com uma pequena entrada em cascata.
+ *
+ * A seção só aparece quando pelo menos uma pasta tem peça de verdade —
+ * enquanto o material de um evento ainda não subiu pro repositório
+ * (ver `eventos` em `data/cases.ts`), ele simplesmente não é listado, em
+ * vez de mostrar uma pasta vazia no ar.
+ */
+const comPecas = eventos.filter((e) => e.pecas.length > 0);
+---
+
+{
+  comPecas.length > 0 && (
+    <section class="eventos" aria-labelledby="eventos-title">
+      <SectionHead index="06" label="Eventos" id="eventos-title" />
+      <p class="linha-apoio">
+        Identidade visual e material gráfico para eventos, do conceito ao
+        impresso.
+      </p>
+
+      <ul class="pastas">
+        {comPecas.map((evento) => (
+          <li class="pasta" data-pasta>
+            <button
+              class="pasta-capa"
+              type="button"
+              aria-expanded="false"
+              aria-controls={`miolo-${evento.slug}`}
+            >
+              <svg
+                class="icone-fechado"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.379a1.5 1.5 0 0 1 1.06.44l1.122 1.12a1.5 1.5 0 0 0 1.06.44H19.5A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <svg
+                class="icone-aberto"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M3 8.5A1.5 1.5 0 0 1 4.5 7h4.379a1.5 1.5 0 0 1 1.06.44l1.122 1.12a1.5 1.5 0 0 0 1.06.44H19.5A1.5 1.5 0 0 1 21 10.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="m3 8.5 1.4 8.4A1.5 1.5 0 0 0 5.88 18h12.24a1.5 1.5 0 0 0 1.48-1.24l1.15-6.9A1 1 0 0 0 19.77 8.7H6.2a1.5 1.5 0 0 0-1.48 1.24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linejoin="round"
+                />
+              </svg>
+
+              <span class="rotulo">{evento.nome}</span>
+              <span class="contagem">
+                {evento.pecas.length}{" "}
+                {evento.pecas.length === 1 ? "peça" : "peças"}
+              </span>
+            </button>
+
+            <div class="miolo" id={`miolo-${evento.slug}`} hidden>
+              <ul class="leque-fotos">
+                {evento.pecas.map((src, i) => (
+                  <li style={`--i:${i}`}>
+                    <Image
+                      src={src}
+                      alt={`Peça da identidade visual — ${evento.nome}`}
+                      widths={[220, 360, 480]}
+                      sizes="(min-width: 48rem) 14rem, 10rem"
+                      loading="lazy"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<script>
+  /**
+   * Cada pasta abre/fecha sozinha; abrir uma fecha as outras, pra não
+   * empilhar vários leques de peça na tela ao mesmo tempo.
+   */
+  const pastas = document.querySelectorAll<HTMLElement>("[data-pasta]");
+
+  const fecha = (pasta: HTMLElement) => {
+    const botao = pasta.querySelector<HTMLButtonElement>(".pasta-capa");
+    const miolo = pasta.querySelector<HTMLElement>(".miolo");
+    botao?.setAttribute("aria-expanded", "false");
+    botao?.classList.remove("aberta");
+    if (miolo) miolo.hidden = true;
+  };
+
+  pastas.forEach((pasta) => {
+    const botao = pasta.querySelector<HTMLButtonElement>(".pasta-capa");
+    const miolo = pasta.querySelector<HTMLElement>(".miolo");
+    if (!botao || !miolo) return;
+
+    botao.addEventListener("click", () => {
+      const jaAberta = botao.getAttribute("aria-expanded") === "true";
+      pastas.forEach(fecha);
+
+      if (!jaAberta) {
+        botao.setAttribute("aria-expanded", "true");
+        botao.classList.add("aberta");
+        miolo.hidden = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .eventos {
+    padding: var(--section-y) 0;
+  }
+
+  .eventos :global(.head) {
+    margin-inline: var(--gutter);
+  }
+
+  .linha-apoio {
+    margin: 0 var(--gutter) clamp(1.5rem, 3vw, 2.5rem);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+
+  .pastas {
+    list-style: none;
+    margin: 0;
+    padding-inline: var(--gutter);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: clamp(1.25rem, 3vw, 2rem);
+    align-items: start;
+  }
+
+  .pasta-capa {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    background: var(--bg-alt);
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    transition:
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      border-color 0.3s ease;
+  }
+
+  .pasta-capa:hover,
+  .pasta-capa.aberta {
+    border-color: var(--acento);
+  }
+
+  .pasta-capa.aberta {
+    transform: translateY(-0.35rem);
+  }
+
+  .icone-fechado,
+  .icone-aberto {
+    width: 2rem;
+    height: 2rem;
+    color: var(--ink-soft);
+    transition:
+      opacity 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .pasta-capa.aberta .icone-fechado,
+  .pasta-capa.aberta .icone-aberto {
+    color: var(--acento);
+  }
+
+  .icone-aberto {
+    display: none;
+  }
+
+  .pasta-capa.aberta .icone-fechado {
+    display: none;
+  }
+
+  .pasta-capa.aberta .icone-aberto {
+    display: block;
+  }
+
+  .rotulo {
+    margin-top: auto;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .contagem {
+    color: var(--ink-soft);
+    font-size: var(--meta);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .miolo {
+    margin-top: 0.75rem;
+  }
+
+  .leque-fotos {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0.25rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  .leque-fotos li {
+    flex: 0 0 auto;
+    width: clamp(7rem, 20vw, 10rem);
+    scroll-snap-align: start;
+    background: var(--bg);
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.1);
+  }
+
+  .leque-fotos :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Entrada em cascata — só quando a pasta abre, e só pra quem topa
+     movimento. A `hidden` some com display, então a animação sempre
+     recomeça do zero ao reabrir. */
+  @media (prefers-reduced-motion: no-preference) {
+    .leque-fotos li {
+      animation: entra-leque 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      animation-delay: calc(var(--i, 0) * 0.06s);
+    }
+  }
+
+  @keyframes entra-leque {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

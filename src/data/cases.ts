@@ -138,3 +138,44 @@ export const videos: Video[] = [
   { src: "/cases/video/g3-stories.mp4", poster: "/cases/video/g3-stories.jpg", alt: "Stories animado em motion design para empresa de engenharia" },
   { src: "/cases/video/axialumi-07.mp4", poster: "/cases/video/axialumi-07.jpg", alt: "Anúncio em vídeo para marca de iluminação" },
 ];
+
+/** Uma "pasta" de identidade visual e material gráfico de evento. */
+export interface Evento {
+  slug: string;
+  nome: string;
+  pecas: ImageMetadata[];
+}
+
+// Cada pasta busca só na própria subpasta — enquanto ela estiver vazia (peças
+// ainda não subiram pro repositório), o glob retorna um array vazio, e
+// Eventos.astro filtra a pasta pra fora em vez de mostrá-la em branco.
+const literarte = pasta(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/eventos/literarte/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+  ),
+);
+
+const arraiaDoInstituto = pasta(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/eventos/arraia-do-instituto/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+  ),
+);
+
+const eTudoNosso = pasta(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/eventos/e-tudo-nosso/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+  ),
+);
+
+export const eventos: Evento[] = [
+  { slug: "literarte", nome: "Literarte", pecas: literarte },
+  {
+    slug: "arraia-do-instituto",
+    nome: "Arraiá do Instituto",
+    pecas: arraiaDoInstituto,
+  },
+  { slug: "e-tudo-nosso", nome: "É Tudo Nosso", pecas: eTudoNosso },
+];
