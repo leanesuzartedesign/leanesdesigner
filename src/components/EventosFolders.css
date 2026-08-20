@@ -39,17 +39,17 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0.5rem 1rem rgb(0 0 0 / 0.12));
+  filter: drop-shadow(0 0.85rem 1.5rem rgb(0 0 0 / 0.22));
 }
 
 /* Posicionado nas proporções do próprio desenho (viewBox 100×75): o
-   corpo vai de y=22 a y=68 (~29% a ~91% da altura) — o texto fica no
-   meio dessa área livre, abaixo de onde a aba se sobrepõe. */
+   corpo (parte larga) vai de y=8 a y=68 — o texto fica na metade de
+   baixo dessa área, longe da emenda com a aba. */
 .evt-conteudo {
   position: absolute;
   left: 14%;
   right: 10%;
-  top: 40%;
+  top: 46%;
   bottom: 12%;
   display: flex;
   flex-direction: column;
@@ -140,43 +140,53 @@
   text-align: center;
 }
 
-/* Foto em destaque — por cima de tudo, via portal pro <body>. */
+/* Foto ampliada — não é tela cheia, só um cartão maior por cima do
+   resto, pra dar uma olhada de perto sem tomar a tela toda. */
 .evt-lightbox {
   position: fixed;
   inset: 0;
   z-index: 100;
   display: grid;
   place-items: center;
-  padding: clamp(1rem, 4vw, 3rem);
-  background: rgb(0 0 0 / 0.82);
+  padding: 1.5rem;
+  background: rgb(20 20 20 / 0.45);
+}
+
+.evt-lightbox-cartao {
+  position: relative;
+  max-width: min(90vw, 26rem);
+  max-height: min(80vh, 26rem);
 }
 
 .evt-lightbox-img {
-  max-width: 100%;
-  max-height: 100%;
+  display: block;
+  max-width: min(90vw, 26rem);
+  max-height: min(80vh, 26rem);
   width: auto;
   height: auto;
-  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 0.4);
+  border-radius: 4px;
+  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 0.35);
   cursor: default;
 }
 
 .evt-lightbox-fechar {
-  position: fixed;
-  top: clamp(0.75rem, 3vw, 1.5rem);
-  right: clamp(0.75rem, 3vw, 1.5rem);
-  width: 2.5rem;
-  height: 2.5rem;
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  width: 2rem;
+  height: 2rem;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 1px solid rgb(255 255 255 / 0.3);
-  background: rgb(255 255 255 / 0.1);
-  color: #fff;
-  font-size: 1.5rem;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
+  box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 0.25);
 }
 
 .evt-lightbox-fechar:hover {
-  background: rgb(255 255 255 / 0.2);
+  background: var(--bg-alt);
 }

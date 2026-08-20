@@ -77,36 +77,22 @@ export default function EventosFolders({ eventos }: Props) {
                 aria-expanded={estaAberta}
                 onClick={alterna}
               >
-                <svg
+                <motion.svg
                   className="evt-icone"
                   viewBox="0 0 100 75"
                   aria-hidden="true"
                   focusable="false"
+                  animate={{ rotateX: estaAberta ? -10 : 0, y: estaAberta ? -2 : 0 }}
+                  transition={MOLA}
+                  style={{ transformOrigin: "50% 0%", transformPerspective: 400 }}
                 >
-                  {/* Aba — atrás do corpo, só a ponta de cima aparece. */}
-                  <motion.rect
-                    x={8}
-                    y={8}
-                    width={42}
-                    height={18}
-                    rx={6}
+                  {/* Um traçado só — aba e corpo são a mesma peça, sem
+                      emenda nem espaço entre as duas partes. */}
+                  <path
+                    d="M 12,0 L 38,0 L 46,8 L 88,8 A 6,6 0 0 1 94,14 L 94,62 A 6,6 0 0 1 88,68 L 12,68 A 6,6 0 0 1 6,62 L 6,6 A 6,6 0 0 1 12,0 Z"
                     fill="url(#evt-gradiente-pasta)"
-                    animate={{ rotateX: estaAberta ? -18 : 0 }}
-                    transition={MOLA}
-                    style={{ transformOrigin: "29px 8px", transformPerspective: 200 }}
                   />
-                  {/* Corpo — desenhado depois, por isso cobre a base da aba. */}
-                  <motion.rect
-                    x={6}
-                    y={22}
-                    width={88}
-                    height={46}
-                    rx={6}
-                    fill="url(#evt-gradiente-pasta)"
-                    animate={{ y: estaAberta ? 20 : 22 }}
-                    transition={MOLA}
-                  />
-                </svg>
+                </motion.svg>
                 <span className="evt-conteudo">
                   <span className="evt-nome">{evento.nome}</span>
                   <span className="evt-contagem">
@@ -190,24 +176,28 @@ export default function EventosFolders({ eventos }: Props) {
                 exit={{ opacity: 0 }}
                 onClick={() => setFotoGrande(null)}
               >
-                <motion.img
-                  src={fotoGrande.srcGrande}
-                  alt={fotoGrande.alt}
-                  className="evt-lightbox-img"
+                <motion.div
+                  className="evt-lightbox-cartao"
                   initial={{ scale: 0.85, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.85, opacity: 0 }}
                   transition={MOLA}
                   onClick={(e) => e.stopPropagation()}
-                />
-                <button
-                  type="button"
-                  className="evt-lightbox-fechar"
-                  aria-label="Fechar"
-                  onClick={() => setFotoGrande(null)}
                 >
-                  ×
-                </button>
+                  <img
+                    src={fotoGrande.srcGrande}
+                    alt={fotoGrande.alt}
+                    className="evt-lightbox-img"
+                  />
+                  <button
+                    type="button"
+                    className="evt-lightbox-fechar"
+                    aria-label="Fechar"
+                    onClick={() => setFotoGrande(null)}
+                  >
+                    ×
+                  </button>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>,
