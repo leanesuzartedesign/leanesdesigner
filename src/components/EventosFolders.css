@@ -1,0 +1,136 @@
+.evt-lista {
+  list-style: none;
+  margin: 0;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 3vw, 2rem);
+  align-items: start;
+}
+
+.evt-item {
+  position: relative;
+}
+
+/* O item aberto sobe de camada — o leque de fotos estoura pra fora do
+   cartão, e não pode ficar atrás dos vizinhos. */
+.evt-item[data-aberta="true"] {
+  z-index: 5;
+}
+
+.evt-gatilho {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--bg-alt);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.evt-item[data-aberta="true"] .evt-gatilho {
+  border-color: var(--acento);
+}
+
+.evt-icone {
+  width: 2rem;
+  height: 2rem;
+  color: var(--ink-soft);
+  transition: color 0.2s ease;
+}
+
+.evt-item[data-aberta="true"] .evt-icone {
+  color: var(--acento);
+}
+
+.evt-nome {
+  margin-top: auto;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.evt-contagem {
+  color: var(--ink-soft);
+  font-size: var(--meta);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Painel que estoura por cima do cartão quando a pasta abre. */
+.evt-painel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.evt-leque {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evt-foto {
+  position: absolute;
+  width: clamp(6rem, 45%, 9rem);
+  height: auto;
+  border-radius: 2px;
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.25);
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  background: var(--bg);
+}
+
+.evt-foto:active {
+  cursor: grabbing;
+}
+
+.evt-puxador {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding-bottom: 0.75rem;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.evt-puxador:active {
+  cursor: grabbing;
+}
+
+.evt-puxador-barra {
+  width: 2.5rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.evt-dica {
+  font-size: var(--meta);
+  color: var(--ink-soft);
+  background: var(--bg);
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}

@@ -171,7 +171,7 @@ const eTudoNosso = pasta(
 );
 
 export const eventos: Evento[] = [
-  { slug: "literarte", nome: "Literarte", pecas: literarte },
+  { slug: "literarte", nome: "Literarte Intercultural", pecas: literarte },
   {
     slug: "arraia-do-instituto",
     nome: "Arraiá do Instituto",
