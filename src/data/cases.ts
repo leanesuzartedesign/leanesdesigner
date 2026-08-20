@@ -99,15 +99,15 @@ export const faixas: Bloco[][] = [
   ],
   [
     {
-      slug: "iluminacao",
-      descricao: "Peça de social media para marca de iluminação",
-      pecas: axialumi,
-    },
-    {
       slug: "juridico",
       descricao:
         "Peça de social media para marca pessoal na área jurídica",
       pecas: karine,
+    },
+    {
+      slug: "iluminacao",
+      descricao: "Peça de social media para marca de iluminação",
+      pecas: axialumi,
     },
   ],
 ];
