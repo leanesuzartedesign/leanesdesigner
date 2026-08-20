@@ -20,30 +20,26 @@
 
 .evt-gatilho {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
+  display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
-  padding: 1.25rem;
-  border: 1px solid var(--line);
-  background: var(--bg-alt);
+  padding: 0;
+  border: none;
+  background: none;
   cursor: pointer;
   text-align: left;
   font: inherit;
   color: inherit;
-  transition: border-color 0.3s ease;
 }
 
-.evt-item[data-aberta="true"] .evt-gatilho {
-  border-color: var(--acento);
-}
-
+/* O traçado da pasta preenche o cartão inteiro — é ele que faz de
+   moldura, não uma caixa por fora. */
 .evt-icone {
-  width: 2rem;
-  height: 2rem;
-  color: var(--ink-soft);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--line);
   transition: color 0.2s ease;
 }
 
@@ -51,8 +47,20 @@
   color: var(--acento);
 }
 
+/* Posicionado nas proporções do próprio traçado (viewBox 24×24): o corpo
+   da pasta vai de ~35% a ~79% da altura — o texto fica ancorado perto do
+   fim desse miolo, com uma margem que respeita o desenho. */
+.evt-conteudo {
+  position: absolute;
+  left: 15%;
+  right: 10%;
+  bottom: 21%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .evt-nome {
-  margin-top: auto;
   font-weight: 600;
   font-size: 1.05rem;
 }

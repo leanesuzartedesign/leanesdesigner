@@ -69,24 +69,28 @@ export default function EventosFolders({ eventos }: Props) {
                 <motion.svg
                   className="evt-icone"
                   viewBox="0 0 24 24"
+                  preserveAspectRatio="none"
                   aria-hidden="true"
                   focusable="false"
-                  animate={{ rotateX: estaAberta ? -20 : 0, y: estaAberta ? 2 : 0 }}
+                  animate={{ rotateX: estaAberta ? -14 : 0, y: estaAberta ? 2 : 0 }}
                   transition={MOLA}
-                  style={{ transformPerspective: 200 }}
+                  style={{ transformPerspective: 320 }}
                 >
                   <path
                     d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.379a1.5 1.5 0 0 1 1.06.44l1.122 1.12a1.5 1.5 0 0 0 1.06.44H19.5A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"
-                    fill="none"
+                    fill="var(--bg-alt)"
                     stroke="currentColor"
-                    strokeWidth={1.4}
+                    strokeWidth={0.5}
                     strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
                   />
                 </motion.svg>
-                <span className="evt-nome">{evento.nome}</span>
-                <span className="evt-contagem">
-                  {evento.fotos.length}{" "}
-                  {evento.fotos.length === 1 ? "peça" : "peças"}
+                <span className="evt-conteudo">
+                  <span className="evt-nome">{evento.nome}</span>
+                  <span className="evt-contagem">
+                    {evento.fotos.length}{" "}
+                    {evento.fotos.length === 1 ? "peça" : "peças"}
+                  </span>
                 </span>
               </button>
 
