@@ -132,7 +132,7 @@ export const documentos: Bloco[] = [
  * ficam nas pontas (onde o leque os gira e encolhe) e o principal no centro.
  */
 export const videos: Video[] = [
-  { src: "/cases/video/axialumi-02.mp4", poster: "/cases/video/axialumi-02.jpg", alt: "Reels apresentando linha de luminárias" },
+  { src: "/cases/video/escola-01.mp4", poster: "/cases/video/escola-01.jpg", alt: "Vídeo institucional para escola" },
   { src: "/cases/video/axialumi-lp.mp4", poster: "/cases/video/axialumi-lp.jpg", alt: "Vídeo de campanha para marca de iluminação" },
   { src: "/cases/video/axialumi-04.mp4", poster: "/cases/video/axialumi-04.jpg", alt: "Anúncio em vídeo para marca de iluminação" },
   { src: "/cases/video/g3-stories.mp4", poster: "/cases/video/g3-stories.jpg", alt: "Stories animado em motion design para empresa de engenharia" },
