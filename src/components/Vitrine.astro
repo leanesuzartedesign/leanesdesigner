@@ -5,9 +5,9 @@ import { faixas } from "../data/cases";
 
 /**
  * Vitrine de posts — duas faixas que correm sozinhas em sentidos opostos,
- * como a terceira seção da referência. Marquee em CSS puro: cada faixa é
- * duplicada e a cópia sai da árvore de acessibilidade, para o leitor de tela
- * não ouvir a lista duas vezes.
+ * como a terceira seção da referência. Cada faixa é duplicada e a cópia sai
+ * da árvore de acessibilidade, para o leitor de tela não ouvir a lista duas
+ * vezes — isso serve tanto para o giro automático quanto para o arrasto.
  *
  * A duração é proporcional ao número de peças, para as duas faixas correrem
  * na mesma velocidade mesmo tendo tamanhos diferentes.
@@ -26,7 +26,13 @@ const linhas = faixas.map((blocos) => {
   <div class="faixas">
     {
       linhas.map((linha, li) => (
-        <div class="faixa" style={`--duracao:${linha.duracao}s`} data-sentido={li % 2 === 0 ? "esquerda" : "direita"}>
+        <div
+          class="faixa"
+          data-faixa
+          data-duracao={linha.duracao}
+          data-sentido={li % 2 === 0 ? "esquerda" : "direita"}
+          style={`--duracao:${linha.duracao}`}
+        >
           {[0, 1].map((copia) => (
             <ul class="trilha" aria-hidden={copia === 1 ? "true" : undefined}>
               {linha.pecas.map((p) => (
@@ -47,6 +53,120 @@ const linhas = faixas.map((blocos) => {
     }
   </div>
 </section>
+
+<script>
+  /**
+   * Corre sozinha, mas segurar (mouse ou dedo) pausa e deixa arrastar pros
+   * dois lados — pra trás mostra peças que já passaram, pra frente espia as
+   * que ainda vão aparecer. Ao soltar, retoma de onde parou, no mesmo
+   * sentido de antes.
+   *
+   * Por isso o CSS não anima mais via @keyframes quando há JS: o transform
+   * passa a ser todo calculado aqui, senão não dá pra pausar/arrastar sem
+   * o movimento "brigar" com a animação do navegador.
+   */
+  const reduzMovimento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (!reduzMovimento) {
+    document.querySelectorAll<HTMLElement>("[data-faixa]").forEach((faixa) => {
+      const trilha0 = faixa.querySelector<HTMLElement>(".trilha");
+      if (!trilha0) return;
+
+      faixa.classList.add("js-arrastavel");
+
+      const duracaoBase = Number(faixa.dataset.duracao) || 60;
+      const cresce = faixa.dataset.sentido !== "direita"; // esquerda: deslocamento sobe; direita: desce
+
+      // Largura de um loop completo = a primeira cópia inteira + o gap até a
+      // segunda. Cacheada e recalculada só quando o tamanho muda de verdade
+      // (imagem carregando, resize) — não a cada frame.
+      let loop = 0;
+      const recalculaLoop = () => {
+        const gap = parseFloat(getComputedStyle(faixa).columnGap || "0");
+        loop = trilha0.getBoundingClientRect().width + gap;
+      };
+      recalculaLoop();
+      new ResizeObserver(recalculaLoop).observe(trilha0);
+
+      let velocidade = 0; // px/s
+      let deslocamento = 0;
+      let arrastando = false;
+      let pausadoPorHover = false;
+      let inicioX = 0;
+      let inicioDeslocamento = 0;
+      let ultimoFrame = 0;
+
+      const desenha = () => {
+        if (!loop) return;
+        const wrapped = ((deslocamento % loop) + loop) % loop;
+        faixa.style.transform = `translateX(${-wrapped}px)`;
+      };
+
+      const passo = (agora: number) => {
+        if (!ultimoFrame) ultimoFrame = agora;
+        const dt = (agora - ultimoFrame) / 1000;
+        ultimoFrame = agora;
+
+        if (!arrastando && !pausadoPorHover && loop) {
+          if (!velocidade) velocidade = loop / duracaoBase;
+          deslocamento += (cresce ? 1 : -1) * velocidade * dt;
+          desenha();
+        }
+
+        requestAnimationFrame(passo);
+      };
+      requestAnimationFrame(passo);
+
+      const comeca = (x: number) => {
+        arrastando = true;
+        inicioX = x;
+        inicioDeslocamento = deslocamento;
+        faixa.classList.add("arrastando");
+      };
+
+      const move = (x: number) => {
+        if (!arrastando) return;
+        // O conteúdo acompanha o dedo/cursor 1:1 — arrastar pra direita
+        // "desenrola pra trás", pra esquerda avança mais rápido.
+        deslocamento = inicioDeslocamento - (x - inicioX);
+        desenha();
+      };
+
+      const solta = () => {
+        arrastando = false;
+        ultimoFrame = 0;
+        faixa.classList.remove("arrastando");
+      };
+
+      faixa.addEventListener("pointerdown", (e) => {
+        // Sem capture o arrasto ainda funciona, só não segue o cursor se
+        // ele saltar pra fora do elemento no meio do gesto — por isso o
+        // catch não impede de começar a arrastar.
+        try {
+          faixa.setPointerCapture(e.pointerId);
+        } catch {}
+        comeca(e.clientX);
+      });
+      faixa.addEventListener("pointermove", (e) => move(e.clientX));
+      faixa.addEventListener("pointerup", solta);
+      faixa.addEventListener("pointercancel", solta);
+
+      // Sem toque na tela: passar o mouse por cima já segura a faixa, sem
+      // precisar clicar — dá tempo de olhar a peça sem arrastar nada.
+      faixa.addEventListener("pointerenter", (e) => {
+        if (e.pointerType === "mouse") pausadoPorHover = true;
+      });
+      faixa.addEventListener("pointerleave", (e) => {
+        if (e.pointerType === "mouse") {
+          pausadoPorHover = false;
+          ultimoFrame = 0;
+        }
+      });
+    });
+  }
+</script>
 
 <style>
   .vitrine {
@@ -71,6 +191,19 @@ const linhas = faixas.map((blocos) => {
     gap: clamp(0.5rem, 1.5vw, 1rem);
   }
 
+  /* Só quando o JS assume o controle (arrasto ligado): mão indica que dá
+     pra segurar e puxar pros dois lados. */
+  .faixa.js-arrastavel {
+    cursor: grab;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .faixa.js-arrastavel.arrastando {
+    cursor: grabbing;
+  }
+
   .trilha {
     list-style: none;
     padding: 0;
@@ -91,18 +224,15 @@ const linhas = faixas.map((blocos) => {
     height: auto;
   }
 
+  /* Sem JS (ou script bloqueado), o CSS ainda faz a faixa correr sozinha —
+     só não dá pra arrastar nesse caso. */
   @media (prefers-reduced-motion: no-preference) {
-    .faixa[data-sentido="esquerda"] {
-      animation: corre-esquerda var(--duracao) linear infinite;
+    .faixa:not(.js-arrastavel)[data-sentido="esquerda"] {
+      animation: corre-esquerda calc(var(--duracao, 60) * 1s) linear infinite;
     }
 
-    .faixa[data-sentido="direita"] {
-      animation: corre-direita var(--duracao) linear infinite;
-    }
-
-    /* Passar o mouse segura a faixa para dar tempo de olhar a peça. */
-    .faixa:hover {
-      animation-play-state: paused;
+    .faixa:not(.js-arrastavel)[data-sentido="direita"] {
+      animation: corre-direita calc(var(--duracao, 60) * 1s) linear infinite;
     }
   }
 
@@ -123,7 +253,8 @@ const linhas = faixas.map((blocos) => {
     }
   }
 
-  /* Sem animação, a faixa vira um slider que a pessoa arrasta. */
+  /* Sem animação, a faixa vira um slider que a pessoa arrasta com scroll
+     nativo — mais simples e mais acessível do que o arrasto via JS. */
   @media (prefers-reduced-motion: reduce) {
     .faixas {
       overflow-x: auto;
