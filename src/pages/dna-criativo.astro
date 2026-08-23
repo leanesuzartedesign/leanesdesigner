@@ -1,0 +1,721 @@
+---
+import { getImage } from "astro:assets";
+import heroBgSrc from "../assets/dna-criativo/hero-bg.jpg";
+import folderCardSrc from "../assets/dna-criativo/folder-card.png";
+import fechamentoBgSrc from "../assets/dna-criativo/fechamento-bg.jpg";
+import avatarSrc from "../assets/dna-criativo/avatar.png";
+
+/**
+ * Página isca digital "DNA Criativo" — standalone, fora do Layout do
+ * portfólio de propósito: tem identidade visual própria (paleta
+ * terracota/bege, fontes Fraunces + Work Sans) e não deve herdar o
+ * grayscale-nas-imagens nem a tipografia do resto do site.
+ *
+ * As 4 imagens chegaram embutidas em base64 no HTML original (~330kB
+ * inline, direto no <head>) — aqui passam pelo pipeline de imagem do
+ * Astro (comprimidas, em WebP, sem bloquear o parse do HTML).
+ */
+const [heroBg, folderCard, fechamentoBg, avatar] = await Promise.all([
+  getImage({ src: heroBgSrc, width: 1400, format: "webp" }),
+  getImage({ src: folderCardSrc, width: 1100, format: "webp" }),
+  getImage({ src: fechamentoBgSrc, width: 1400, format: "webp" }),
+  getImage({ src: avatarSrc, width: 120, format: "webp" }),
+]);
+
+// Texto puro, sem indentação de JSX — o CSS usa white-space: pre-wrap,
+// então qualquer espaço extra apareceria (e seria copiado) junto do prompt.
+const promptText = `"Você é um estrategista de marca. Não me faça perguntas abertas — eu vou te dar informações soltas, e você vai PROPOR uma primeira versão do meu DNA de marca, com hipóteses concretas que eu só preciso confirmar ou corrigir.
+
+Aqui está sobre mim: [cole sua bio atual do Instagram] [cole 2 ou 3 legendas recentes que você escreveu, ou uma descrição de 2-3 frases do que você faz]
+
+Com base nisso, me devolva:
+
+1) Um princípio central da minha marca, em 1 frase — e 2 alternativas, caso a primeira não soe como eu.
+
+2) 3 palavras que minha marca JÁ É (baseado no que você leu, não genérico) e 3 que ela deveria parar de ser.
+
+3) Um perfil de cliente ideal — nome, idade, profissão — extraído de quem parece ser meu público pelo que escrevi, não uma persona inventada do zero.
+
+4) 3 temas que já combinam com o que eu escrevo e 3 que eu deveria evitar.
+
+5) Proponha 1 cor e 1 fonte que combinem com o tom que você percebeu no meu texto, com 1 frase do porquê.
+
+Me devolva tudo isso como proposta inicial de DNA. Eu reviso e te digo o que ajustar."`;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DNA Criativo — Leane Suzarte</title>
+    <meta
+      name="description"
+      content="Ferramenta gratuita: um prompt guiado para definir o DNA de marca do seu negócio — princípio central, tom de voz, público e filtro editorial."
+    />
+    <link rel="canonical" href="https://www.leanesuzarte.com.br/dna-criativo" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style
+      define:vars={{
+        heroUrl: `url(${heroBg.src})`,
+        folderUrl: `url(${folderCard.src})`,
+        fechamentoUrl: `url(${fechamentoBg.src})`,
+      }}
+    >
+      :root {
+        --terracota-medio: #8b4817;
+        --terracota-claro: #b87d58;
+        --bege-claro: #cebfb1;
+        --off-white: #f8f8f8;
+        --terracota-escuro: #3f1d0e;
+        --texto-escuro: #2b1a10;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Work Sans", sans-serif;
+        color: var(--texto-escuro);
+        background: var(--off-white);
+        -webkit-font-smoothing: antialiased;
+      }
+      h1,
+      h2,
+      h3,
+      .display {
+        font-family: "Fraunces", serif;
+        font-weight: 500;
+      }
+      a {
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--terracota-claro);
+        outline-offset: 3px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      /* ===== HERO ===== */
+      .hero {
+        min-height: 100svh;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        color: var(--off-white);
+        overflow: hidden;
+        background-image: var(--heroUrl);
+        background-size: cover;
+        background-position: center;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          165deg,
+          rgba(139, 72, 23, 0.88) 0%,
+          rgba(85, 40, 18, 0.82) 55%,
+          rgba(63, 29, 14, 0.9) 100%
+        );
+      }
+
+      .hero-topbar {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 2rem 6vw 0;
+      }
+
+      .avatar-circle {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .topbar-text {
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        line-height: 1.5;
+        color: var(--off-white);
+      }
+
+      .topbar-text .slash {
+        color: var(--bege-claro);
+      }
+
+      .hero-body {
+        position: relative;
+        z-index: 2;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6vh 6vw;
+      }
+
+      .folder-card {
+        position: relative;
+        background-image: var(--folderUrl);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        aspect-ratio: 900 / 749;
+        width: min(560px, 92vw);
+        padding: 15% 9% 8%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .folder-card .eyebrow {
+        font-size: 0.72rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #f1e0d2;
+        font-weight: 600;
+        margin-bottom: 1.4rem;
+      }
+
+      .folder-card h1 {
+        font-size: clamp(1.9rem, 4.2vw, 2.7rem);
+        line-height: 1.15;
+        margin-bottom: 1.3rem;
+        color: var(--off-white);
+      }
+
+      .folder-card p.lede {
+        font-size: clamp(0.92rem, 1.4vw, 1.02rem);
+        line-height: 1.65;
+        color: #f1e4d8;
+        max-width: 42ch;
+      }
+
+      .hero-footer {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.1rem;
+        padding: 0 6vw 5vh;
+        text-align: center;
+      }
+
+      .compass {
+        width: 30px;
+        height: 30px;
+        opacity: 0.85;
+        animation: spin-slow 50s linear infinite;
+      }
+
+      @keyframes spin-slow {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .hero-footer .caption {
+        font-size: 0.68rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--bege-claro);
+      }
+
+      /* ===== SECTION SHARED ===== */
+      section {
+        padding: clamp(4rem, 9vw, 7rem) 6vw;
+      }
+      .section-inner {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      /* ===== CONTEXTO ===== */
+      .contexto {
+        background: var(--off-white);
+      }
+      .contexto .eyebrow-dark {
+        font-size: 0.72rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--terracota-claro);
+        font-weight: 600;
+        margin-bottom: 1.2rem;
+      }
+      .contexto h2 {
+        font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+        color: var(--terracota-escuro);
+        line-height: 1.25;
+        max-width: 18ch;
+        margin-bottom: 1.8rem;
+      }
+      .contexto p {
+        font-size: 1.05rem;
+        line-height: 1.75;
+        max-width: 62ch;
+        margin-bottom: 1.1rem;
+        color: var(--texto-escuro);
+      }
+      .destaque {
+        background: var(--bege-claro);
+        padding: 1.6rem 1.8rem;
+        margin: 2.2rem 0 3rem;
+        max-width: 62ch;
+      }
+      .destaque p {
+        font-family: "Fraunces", serif;
+        font-weight: 500;
+        font-size: 1.15rem;
+        line-height: 1.5;
+        color: var(--terracota-escuro);
+        margin: 0;
+      }
+      .pilares {
+        display: grid;
+        gap: 1.8rem;
+      }
+      .pilar {
+        display: grid;
+        grid-template-columns: 2.4rem 1fr;
+        gap: 1rem;
+        align-items: start;
+      }
+      .pilar .num {
+        font-family: "Fraunces", serif;
+        font-size: 1.5rem;
+        color: var(--terracota-medio);
+        font-weight: 500;
+      }
+      .pilar .txt {
+        font-size: 1rem;
+        line-height: 1.6;
+      }
+      .pilar .txt strong {
+        color: var(--terracota-escuro);
+        font-weight: 600;
+      }
+
+      /* ===== PROMPT ===== */
+      .prompt-section {
+        background: var(--bege-claro);
+        color: var(--texto-escuro);
+      }
+      .prompt-section .eyebrow-dark2 {
+        font-size: 0.72rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--terracota-medio);
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+      }
+      .prompt-section h2 {
+        font-size: clamp(1.8rem, 3.6vw, 2.5rem);
+        margin-bottom: 1rem;
+        max-width: 18ch;
+        color: var(--terracota-escuro);
+      }
+      .prompt-section > .section-inner > p.intro {
+        color: #4a3222;
+        max-width: 58ch;
+        line-height: 1.65;
+        margin-bottom: 2.4rem;
+        font-size: 1.02rem;
+      }
+      .prompt-card {
+        background: var(--off-white);
+        color: var(--texto-escuro);
+        border-radius: 4px;
+        padding: 2.2rem;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(63, 29, 14, 0.12);
+      }
+      .prompt-card .label {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        color: var(--terracota-medio);
+        font-size: 1.1rem;
+        margin-bottom: 1.2rem;
+        display: block;
+      }
+      .prompt-text {
+        font-size: 0.98rem;
+        line-height: 1.75;
+        white-space: pre-wrap;
+        margin-bottom: 1.8rem;
+      }
+      .copy-btn {
+        font-family: "Work Sans", sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+        background: var(--terracota-medio);
+        color: var(--off-white);
+        border: none;
+        padding: 0.95rem 1.8rem;
+        border-radius: 3px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition:
+          background 0.2s ease,
+          transform 0.15s ease;
+      }
+      .copy-btn:hover {
+        background: var(--terracota-claro);
+      }
+      .copy-btn:active {
+        transform: scale(0.98);
+      }
+      .copy-btn.copied {
+        background: #4a6b4d;
+      }
+      .copy-btn svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .dica {
+        margin-top: 1.6rem;
+        font-size: 0.88rem;
+        color: #5a4231;
+        font-style: italic;
+        line-height: 1.5;
+      }
+
+      /* ===== FECHAMENTO ===== */
+      .fechamento {
+        position: relative;
+        color: var(--off-white);
+        background-image: var(--fechamentoUrl);
+        background-size: cover;
+        background-position: top center;
+        overflow: hidden;
+      }
+      .fechamento::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(139, 72, 23, 0.82) 0%,
+          rgba(139, 72, 23, 0.87) 40%,
+          rgba(63, 29, 14, 0.92) 100%
+        );
+      }
+      .fechamento .section-inner {
+        position: relative;
+        z-index: 2;
+        text-align: left;
+      }
+      .fechamento .top-mark {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 3rem;
+      }
+      .fechamento .top-mark svg {
+        width: 26px;
+        height: 26px;
+        opacity: 0.9;
+      }
+      .fechamento .top-mark .brand-mini {
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--bege-claro);
+        line-height: 1.5;
+      }
+      .fechamento h2 {
+        font-size: clamp(1.9rem, 4vw, 2.7rem);
+        max-width: 16ch;
+        margin-bottom: 1.4rem;
+      }
+      .fechamento p {
+        max-width: 52ch;
+        line-height: 1.7;
+        color: #f1e4d8;
+        margin-bottom: 2rem;
+        font-size: 1.02rem;
+      }
+      .cta-link {
+        display: inline-block;
+        border: 1.5px solid var(--bege-claro);
+        padding: 0.85rem 2rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+      }
+      .cta-link:hover {
+        background: var(--off-white);
+        color: var(--terracota-medio);
+      }
+
+      footer {
+        position: relative;
+        z-index: 2;
+        padding: 2.4rem 0 0;
+        background: transparent;
+        color: var(--bege-claro);
+        font-size: 0.78rem;
+      }
+      footer .brand {
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        font-size: 0.82rem;
+      }
+      footer .direitos {
+        opacity: 0.75;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 600px) {
+        .pilar {
+          grid-template-columns: 2rem 1fr;
+        }
+        .prompt-card {
+          padding: 1.5rem;
+        }
+        .folder-card {
+          padding: 22% 8% 8%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="hero">
+      <div class="hero-topbar">
+        <div class="avatar-circle">
+          <img src={avatar.src} alt="Leane Suzarte" />
+        </div>
+        <div class="topbar-text">
+          <span class="slash">//</span>LEANE SUZARTE<br />DESIGN &amp; ESTRATÉGIA
+        </div>
+      </div>
+
+      <div class="hero-body">
+        <div class="folder-card">
+          <div class="eyebrow">Ferramenta gratuita</div>
+          <h1>DNA Criativo<br />— o roteiro inicial</h1>
+          <p class="lede">
+            Um prompt guiado para você definir a base estratégica da sua
+            marca: o que ela diz, o que ela nunca diz, e pra quem ela existe.
+          </p>
+        </div>
+      </div>
+
+      <div class="hero-footer">
+        <svg
+          class="compass"
+          viewBox="0 0 100 100"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="50" cy="50" r="46" stroke="#cebfb1" stroke-width="1.5" />
+          <path
+            d="M50 8 L56 44 L92 50 L56 56 L50 92 L44 56 L8 50 L44 44 Z"
+            stroke="#cebfb1"
+            stroke-width="1.5"
+            fill="none"
+          />
+          <circle cx="50" cy="50" r="3" fill="#cebfb1" />
+        </svg>
+        <div class="caption">Para negócios de mulheres com propósito</div>
+      </div>
+    </section>
+
+    <section class="contexto">
+      <div class="section-inner">
+        <div class="eyebrow-dark">Antes de usar</div>
+        <h2>Por que isso muda o jogo do seu conteúdo</h2>
+        <p>
+          A maioria escolhe cor e fonte da marca em minutos, no improviso.
+          Poucas param pra definir o que sustenta cada post antes mesmo de
+          escrever a primeira legenda.
+        </p>
+        <p>
+          Isso é o DNA Criativo: a base que dá direção não só pra você
+          começar a postar, mas pra você continuar — mesmo nos dias em que a
+          vontade já passou.
+        </p>
+
+        <div class="destaque">
+          <p>
+            Direcionamento é o que separa quem posta com propósito de quem só
+            está preenchendo feed.
+          </p>
+        </div>
+
+        <div class="pilares">
+          <div class="pilar">
+            <span class="num">1</span><span class="txt"
+              ><strong>Princípio central</strong> — a ideia que sustenta cada
+              post, antes da legenda.</span
+            >
+          </div>
+          <div class="pilar">
+            <span class="num">2</span><span class="txt"
+              ><strong>Tom de voz</strong> — o que você fala, e principalmente
+              o que você nunca fala.</span
+            >
+          </div>
+          <div class="pilar">
+            <span class="num">3</span><span class="txt"
+              ><strong>Pra quem você fala</strong> — uma pessoa real, não uma
+              descrição genérica de público.</span
+            >
+          </div>
+          <div class="pilar">
+            <span class="num">4</span><span class="txt"
+              ><strong>Filtro editorial</strong> — os temas que você abraça
+              sempre, os que evita sempre, e o ângulo que só você tem.</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="prompt-section">
+      <div class="section-inner">
+        <div class="eyebrow-dark2">A ferramenta</div>
+        <h2>Cole isso no ChatGPT ou Claude</h2>
+        <p class="intro">
+          Copie o prompt abaixo e cole em qualquer assistente de IA. Cole
+          também sua bio e legendas — quanto mais contexto seu, mais precisa
+          a proposta.
+        </p>
+
+        <div class="prompt-card">
+          <span class="label">Prompt de DNA de Marca (versão inicial)</span>
+          <div class="prompt-text" id="promptText" set:text={promptText} />
+          <button class="copy-btn" id="copyBtn" type="button">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><rect x="9" y="9" width="13" height="13" rx="2"></rect><path
+                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+              ></path></svg
+            >
+            <span id="copyBtnText">Copiar prompt</span>
+          </button>
+        </div>
+
+        <div class="dica">
+          Dica: quanto mais texto seu você colar (bio, legendas, descrição),
+          mais precisa fica a proposta.
+        </div>
+      </div>
+    </section>
+
+    <section class="fechamento">
+      <div class="section-inner">
+        <div class="top-mark">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="46" stroke="#cebfb1" stroke-width="1.5" />
+            <path
+              d="M50 8 L56 44 L92 50 L56 56 L50 92 L44 56 L8 50 L44 44 Z"
+              stroke="#cebfb1"
+              stroke-width="1.5"
+              fill="none"
+            />
+            <circle cx="50" cy="50" r="3" fill="#cebfb1" />
+          </svg>
+          <div class="brand-mini">Leane Suzarte<br />Estratégia &amp; Design</div>
+        </div>
+
+        <h2>Isso é só o começo do seu DNA.</h2>
+        <p>
+          Esse roteiro te dá a base. Se quiser aprofundar cada ponto — com
+          paleta, tipografia, tom de voz completo e um plano de conteúdo que
+          sustenta sua marca no longo prazo — me chama.
+        </p>
+        <a
+          class="cta-link"
+          href="https://www.instagram.com.br/leanesuzarte"
+          target="_blank"
+          rel="noopener">Clique aqui</a
+        >
+      </div>
+
+      <footer>
+        <div class="section-inner">
+          <div class="brand">
+            Leane Suzarte · Estratégia &amp; Design — Para negócios de
+            mulheres com propósito
+          </div>
+          <div class="direitos">
+            © {new Date().getFullYear()} Leane Suzarte. Todos os direitos reservados.
+            Uso pessoal — não redistribua ou revenda sem autorização.
+          </div>
+        </div>
+      </footer>
+    </section>
+
+    <script>
+      const btn = document.getElementById("copyBtn")!;
+      const btnText = document.getElementById("copyBtnText")!;
+      const promptEl = document.getElementById("promptText")!;
+
+      btn.addEventListener("click", () => {
+        navigator.clipboard
+          .writeText(promptEl.textContent?.trim() ?? "")
+          .then(() => {
+            btn.classList.add("copied");
+            btnText.textContent = "Copiado ✓";
+            setTimeout(() => {
+              btn.classList.remove("copied");
+              btnText.textContent = "Copiar prompt";
+            }, 2200);
+          })
+          .catch(() => {
+            btnText.textContent = "Selecione e copie manualmente";
+          });
+      });
+    </script>
+  </body>
+</html>
