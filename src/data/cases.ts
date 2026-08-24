@@ -106,14 +106,14 @@ export const stories: Bloco[] = [
 export const faixas: Bloco[][] = [
   [
     {
-      slug: "engenharia",
-      descricao: "Peça de social media para empresa de engenharia",
-      pecas: g3,
-    },
-    {
       slug: "nutricao-ortomolecular",
       descricao: "Peça de social media para nutrição ortomolecular",
       pecas: nutriOrtomolecular,
+    },
+    {
+      slug: "engenharia",
+      descricao: "Peça de social media para empresa de engenharia",
+      pecas: g3,
     },
   ],
   [
