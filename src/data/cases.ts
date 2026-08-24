@@ -46,6 +46,20 @@ const karine = pasta(
   }),
 );
 
+const nutriOrtomolecular = pasta(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/posts/nutriortomolecular/*.png",
+    { eager: true },
+  ),
+);
+
+const danielaMoreno = pasta(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/posts/danielamoreno/*.png",
+    { eager: true },
+  ),
+);
+
 const angela = pasta(
   import.meta.glob<{ default: ImageMetadata }>("../assets/docs/angela/*.png", {
     eager: true,
@@ -96,6 +110,11 @@ export const faixas: Bloco[][] = [
       descricao: "Peça de social media para empresa de engenharia",
       pecas: g3,
     },
+    {
+      slug: "nutricao-ortomolecular",
+      descricao: "Peça de social media para nutrição ortomolecular",
+      pecas: nutriOrtomolecular,
+    },
   ],
   [
     {
@@ -108,6 +127,12 @@ export const faixas: Bloco[][] = [
       slug: "iluminacao",
       descricao: "Peça de social media para marca de iluminação",
       pecas: axialumi,
+    },
+    {
+      slug: "nutricao-ciclo-feminino",
+      descricao:
+        "Peça de social media para nutricionista especialista em ciclo feminino",
+      pecas: danielaMoreno,
     },
   ],
 ];
