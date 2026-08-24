@@ -26,6 +26,8 @@ const [heroBg, folderCard, fechamentoBg, avatar] = await Promise.all([
 // então qualquer espaço extra apareceria (e seria copiado) junto do prompt.
 const promptText = `"Você é um estrategista de marca. Não me faça perguntas abertas — eu vou te dar informações soltas, e você vai PROPOR uma primeira versão do meu DNA de marca, com hipóteses concretas que eu só preciso confirmar ou corrigir.
 
+Antes de propor qualquer coisa: se o que eu colar abaixo for muito curto (menos de 3-4 frases reais minhas), me avise e peça 1 ou 2 exemplos a mais antes de continuar — não gere respostas rasas com pouca informação.
+
 Aqui está sobre mim: [cole sua bio atual do Instagram] [cole 2 ou 3 legendas recentes que você escreveu, ou uma descrição de 2-3 frases do que você faz]
 
 Com base nisso, me devolva:
@@ -34,11 +36,13 @@ Com base nisso, me devolva:
 
 2) 3 palavras que minha marca JÁ É (baseado no que você leu, não genérico) e 3 que ela deveria parar de ser.
 
-3) Um perfil de cliente ideal — nome, idade, profissão — extraído de quem parece ser meu público pelo que escrevi, não uma persona inventada do zero.
+3) 3 a 5 palavras ou expressões que a minha marca NUNCA deveria usar — clichês, jargão vazio, ou tom que destoa do que você percebeu no meu texto.
 
-4) 3 temas que já combinam com o que eu escrevo e 3 que eu deveria evitar.
+4) Um perfil de cliente ideal — nome, idade, profissão — extraído de quem parece ser meu público pelo que escrevi, não uma persona inventada do zero.
 
-5) Proponha 1 cor e 1 fonte que combinem com o tom que você percebeu no meu texto, com 1 frase do porquê.
+5) 3 temas que já combinam com o que eu escrevo e 3 que eu deveria evitar.
+
+6) Proponha 1 cor e 1 fonte que combinem com o tom que você percebeu no meu texto, com 1 frase do porquê.
 
 Me devolva tudo isso como proposta inicial de DNA. Eu reviso e te digo o que ajustar."`;
 ---
