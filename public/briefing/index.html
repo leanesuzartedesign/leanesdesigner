@@ -176,16 +176,16 @@
     <div class="actions"><button type="button" class="btn primary" id="btn-review">Revisar meu briefing</button></div>
     <div id="review-out" hidden>
       <div id="review-doc"></div>
-      <p class="bintro" style="margin-top:18px"><b>Agora é só enviar para a Leane:</b></p>
+      <p class="bintro" style="margin-top:18px"><b>Agora é só me enviar:</b></p>
       <ol class="steps" id="steps-send" hidden>
-        <li>Toque em <b>Enviar para a Leane</b>. Tudo chega junto: respostas, cores e imagens.</li>
-        <li>Depois, se quiser, toque em <b>Avisar a Leane pelo WhatsApp</b>.</li>
+        <li>Toque em <b>Enviar meu briefing</b>. Tudo chega junto para mim: respostas, cores e imagens.</li>
+        <li>Depois, se quiser, toque em <b>Avisar no WhatsApp</b> para eu ver mais rápido.</li>
       </ol>
       <ol class="steps" id="steps-manual">
         <li>Toque em <b>Enviar pelo WhatsApp</b> — abre a conversa já com o seu resumo escrito.</li>
       </ol>
       <div class="actions">
-        <button type="button" class="btn primary" id="btn-send" hidden>Enviar para a Leane</button>
+        <button type="button" class="btn primary" id="btn-send" hidden>Enviar meu briefing</button>
         <button type="button" class="btn primary" id="btn-wa">Enviar pelo WhatsApp</button>
       </div>
       <div id="sendstatus" class="sendstatus" hidden></div>
@@ -323,7 +323,7 @@ const BLOCKS = {
   ]},
   timbrado: {title:'Papel timbrado', fields:[
     CH('timb_formato','Tamanho',['A4 (21 × 29,7 cm)','A5 (14,8 × 21 cm)','Outro']),
-    MU('timb_posicao','Onde ficam as informações?',['Cabeçalho (topo)','Rodapé','Lateral','Marca d’água sutil ao fundo','Deixo a critério da Leane']),
+    MU('timb_posicao','Onde ficam as informações?',['Cabeçalho (topo)','Rodapé','Lateral','Marca d’água sutil ao fundo','Deixo com você']),
     CH('timb_uso','Como será usado?',['Impressão em gráfica','Impressora do escritório ou de casa','Somente digital (PDF)','Vários usos']),
     MU('timb_arquivos','Que arquivos você precisa?',['Modelo editável no Google Docs','Modelo editável no Canva','PDF pronto para impressão'],{exclusive:[['Modelo editável no Google Docs','Modelo editável no Canva']],help:'Você pode escolher um modelo editável (Google Docs ou Canva) e também o PDF para impressão.'}),
     TA('timb_rodape','Texto fixo de rodapé',{placeholder:'Ex.: razão social, CNPJ, registro, endereço'}),
@@ -333,7 +333,7 @@ const BLOCKS = {
     CH('env_tamanho','Tamanho do envelope',['Ofício (11,4 × 22,9 cm)','Saco A4 (22,9 × 32,4 cm)','Saco A4 grande (24 × 34 cm)','Carta (11,4 × 16,2 cm)','Outro tamanho']),
     T('env_tamanho_outro','Qual o tamanho?',{showIf:{id:'env_tamanho',eq:'Outro tamanho'},placeholder:'Largura × altura'}),
     CH('env_papel','Papel do envelope',['Branco','Kraft (pardo)','Colorido','Ainda não sei']),
-    CH('env_conteudo','O que vai impresso?',['Só o logotipo','Logotipo + dados de contato (remetente)','Logotipo + padrão gráfico','Deixo a critério da Leane']),
+    CH('env_conteudo','O que vai impresso?',['Só o logotipo','Logotipo + dados de contato (remetente)','Logotipo + padrão gráfico','Deixo com você']),
     CH('env_impressao','Tipo de impressão',['Uma cor','Colorido','Não sei']),
     TA('env_obs','Alguma observação sobre o envelope?')
   ]},
@@ -351,7 +351,7 @@ const BLOCKS = {
     TA('post_textos','Textos que devem aparecer na arte',{placeholder:'Título, frase, chamada, preço, contatos…'}),
     CH('post_ilustra','Visual da arte',['Quero ilustrações','Prefiro só tipografia e cores','Quero fotos reais','Tanto faz — decida você']),
     FI('post_fotos','Fotos ou imagens que devem entrar na arte',{help:'Opcional. Até 6 imagens.'}),
-    FO('post_fontes','Tipografia',{extra:['Usar a fonte da minha marca','Deixar a critério da Leane']}),
+    FO('post_fontes','Tipografia',{extra:['Usar a fonte da minha marca','Deixo com você']}),
     CO('post_cores','Cores',{freeLabel:'Usar as cores da minha marca',help:'Ou escolha até 3 cores específicas para esta arte.'}),
     TA('post_obs','Alguma observação ou referência?')
   ]},
@@ -594,7 +594,7 @@ function fontsCtl(s){
     grid.append(card);
   });
   const extra = h('div', {class:'chips', style:'margin-top:10px'});
-  (s.extra || ['Deixar a critério da Leane']).forEach(o => {
+  (s.extra || ['Deixo com você']).forEach(o => {
     const b = h('button', {type:'button', class:'chip', 'data-o':o}, o);
     b.addEventListener('click', () => toggle(o));
     extra.append(b);
@@ -783,7 +783,7 @@ function valueText(s){
   if(s.type === 'date') return fmtDate(v);
   if(s.type === 'choice') return v === 'Outro' ? 'Outro: ' + (outro || '') : v;
   if(s.type === 'multi') return (v || []).map(o => o === 'Outro' ? 'Outro: ' + (outro || '') : o).join(', ');
-  if(s.type === 'colors') return v.free ? (s.freeLabel || 'A critério da Leane') : v.list.map(x => (colorName(x) ? colorName(x) + ' ' : '') + x.toUpperCase()).join(', ');
+  if(s.type === 'colors') return v.free ? (s.freeLabel || 'Deixo com você') : v.list.map(x => (colorName(x) ? colorName(x) + ' ' : '') + x.toUpperCase()).join(', ');
   if(s.type === 'fonts') return (v || []).join(', ');
   if(s.type === 'files') return (S.F[s.id] || []).length + ' arquivo(s) no briefing: ' + (S.F[s.id] || []).map(f => f.name).join(', ');
   return String(v || '').trim();
@@ -791,7 +791,7 @@ function valueText(s){
 function valueHTML(s, mode){
   const v = S.V[s.id];
   if(s.type === 'colors'){
-    if(v.free) return esc(s.freeLabel || 'A critério da Leane');
+    if(v.free) return esc(s.freeLabel || 'Deixo com você');
     return '<div class="bd-sw">' + v.list.map(x => '<span class="bd-c"><i style="background:'+esc(x)+'"></i><b>'+esc(x.toUpperCase())+'</b>'+(colorName(x) ? '<small>'+esc(colorName(x))+'</small>' : '')+'</span>').join('') + '</div>';
   }
   if(s.type === 'fonts'){
@@ -889,7 +889,7 @@ function review(){
   const hasEp = !!CFG.endpoint;
   $('#btn-send').hidden = !hasEp; $('#steps-send').hidden = !hasEp; $('#steps-manual').hidden = hasEp;
   $('#btn-wa').classList.toggle('primary', !hasEp);
-  $('#btn-wa').textContent = hasEp ? 'Avisar a Leane pelo WhatsApp' : 'Enviar pelo WhatsApp';
+  $('#btn-wa').textContent = hasEp ? 'Avisar no WhatsApp' : 'Enviar pelo WhatsApp';
   $('#review-out').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -902,7 +902,7 @@ function waLink(){
 function emailValue(s){
   const v = S.V[s.id];
   if(s.type === 'colors'){
-    if(v.free) return esc(s.freeLabel || 'A critério da Leane');
+    if(v.free) return esc(s.freeLabel || 'Deixo com você');
     return v.list.map(x => '<table role="presentation" cellpadding="0" cellspacing="0" style="display:inline-table;margin:0 16px 6px 0"><tr>'
       + '<td width="34" height="34" bgcolor="'+esc(x)+'" style="background:'+esc(x)+';border:1px solid #d6d6d3;border-radius:6px;font-size:1px;line-height:1px">&nbsp;</td>'
       + '<td style="padding-left:8px;font-size:13px"><b>'+esc(x.toUpperCase())+'</b>'+(colorName(x) ? '<br><span style="color:#6b6b6b;font-size:11px">'+esc(colorName(x))+'</span>' : '')+'</td></tr></table>').join('');
@@ -972,11 +972,11 @@ async function send(){
     const j = await res.json();
     if(!j || !j.ok) throw new Error((j && j.erro) || 'Resposta inesperada');
     sentOk = true; sendingId = null;
-    showStatus(true, '<b>✔ Briefing enviado!</b> A Leane já recebeu as suas respostas, as cores e as imagens. Se quiser, toque em <b>Avisar a Leane pelo WhatsApp</b>.');
+    showStatus(true, '<b>✔ Briefing enviado!</b> Eu já recebi as suas respostas, as cores e as imagens. Se quiser, toque em <b>Avisar no WhatsApp</b> para eu ver mais rápido.');
   }catch(e){
-    showStatus(false, '<b>Não consegui enviar agora.</b> Verifique a internet e tente de novo. Se não der, toque em <b>Avisar a Leane pelo WhatsApp</b>: ele leva o resumo das suas respostas. Elas continuam salvas aqui.');
+    showStatus(false, '<b>Não consegui enviar agora.</b> Verifique a internet e tente de novo. Se não der, toque em <b>Avisar no WhatsApp</b>: ele leva o resumo das suas respostas. Elas continuam salvas aqui.');
   }finally{
-    clearTimeout(timer); sending = false; btn.disabled = false; btn.textContent = 'Enviar para a Leane';
+    clearTimeout(timer); sending = false; btn.disabled = false; btn.textContent = 'Enviar meu briefing';
   }
 }
 
@@ -985,7 +985,7 @@ function download(){
   const a = h('a', {href:URL.createObjectURL(blob), download:fileName()});
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  toast('Arquivo baixado — envie para a Leane junto com a mensagem.');
+  toast('Arquivo baixado.');
 }
 async function share(){
   const file = new File([fileHTML()], fileName(), {type:'text/html'});
@@ -1010,8 +1010,8 @@ function init(){
   $('#btn-review').addEventListener('click', review);
   $('#btn-wa').addEventListener('click', () => {
     const msg = (CFG.endpoint && sentOk)
-      ? 'Olá, Leane! Acabei de enviar o meu briefing pelo formulário (' + (S.V.g_nome || '') + ').'
-      : 'Olá, Leane! Segue o meu briefing:\n\n' + buildText(3300);
+      ? 'Olá! Acabei de enviar o meu briefing pelo formulário (' + (S.V.g_nome || '') + ').'
+      : 'Olá! Segue o meu briefing:\n\n' + buildText(3300);
     window.open('https://wa.me/' + CFG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
   });
   $('#btn-send').addEventListener('click', send);
