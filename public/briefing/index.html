@@ -372,6 +372,7 @@ Object.keys(BLOCKS).forEach(b => BLOCKS[b].fields.forEach(f => FIELD_INDEX[f.id]
 /* ============ estado ============ */
 let S = {services:[], V:{}, F:{}};
 let sentOk = false, sending = false, sendingId = null;
+let FONT_IMGS = {};
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
@@ -795,7 +796,7 @@ function valueHTML(s, mode){
     return '<div class="bd-sw">' + v.list.map(x => '<span class="bd-c"><i style="background:'+esc(x)+'"></i><b>'+esc(x.toUpperCase())+'</b>'+(colorName(x) ? '<small>'+esc(colorName(x))+'</small>' : '')+'</span>').join('') + '</div>';
   }
   if(s.type === 'fonts'){
-    return '<div class="bd-fonts">' + (v || []).map(n => { const ft = FONTS.find(x => x.f === n); return ft ? '<span class="bd-f"><span style="font-family:\''+esc(ft.f)+'\','+ft.g+'">'+esc(sampleName())+'</span><small>'+esc(ft.f)+'</small></span>' : '<span class="bd-t">'+esc(n)+'</span>'; }).join('') + '</div>';
+    return '<div class="bd-fonts">' + (v || []).map((n, fi) => { const ft = FONTS.find(x => x.f === n); const si = FONT_IMGS[s.id] && FONT_IMGS[s.id][fi]; if(ft && si && mode === 'token') return '<span class="bd-f"><img src="{{IMG:fontsample_'+s.id+':'+fi+'}}" alt="" style="height:60px;width:auto;max-width:100%;border-radius:4px"><small>'+esc(ft.f)+'</small></span>'; return ft ? '<span class="bd-f"><span style="font-family:\''+esc(ft.f)+'\','+ft.g+'">'+esc(sampleName())+'</span><small>'+esc(ft.f)+'</small></span>' : '<span class="bd-t">'+esc(n)+'</span>'; }).join('') + '</div>';
   }
   if(s.type === 'files'){
     return '<div class="bd-files">' + (S.F[s.id] || []).map((f, i) => (f.data || '').startsWith('data:image/') ? '<figure><img src="'+(mode === 'token' ? '{{IMG:'+s.id+':'+i+'}}' : f.data)+'" alt=""><figcaption>'+esc(f.name)+'</figcaption></figure>' : '<span class="bd-t">📄 '+esc(f.name)+'</span>').join('') + '</div>';
@@ -908,7 +909,8 @@ function emailValue(s){
       + '<td style="padding-left:8px;font-size:13px"><b>'+esc(x.toUpperCase())+'</b>'+(colorName(x) ? '<br><span style="color:#6b6b6b;font-size:11px">'+esc(colorName(x))+'</span>' : '')+'</td></tr></table>').join('');
   }
   if(s.type === 'fonts'){
-    return (v || []).map(n => { const ft = FONTS.find(x => x.f === n);
+    return (v || []).map((n, fi) => { const ft = FONTS.find(x => x.f === n); const si = FONT_IMGS[s.id] && FONT_IMGS[s.id][fi];
+      if(ft && si) return '<div style="margin:0 0 8px"><img src="cid:fontsample_'+s.id+'_'+fi+'" width="300" alt="'+esc(ft.f)+'" style="width:300px;max-width:100%;height:auto;border:1px solid #e4e4e1;border-radius:6px"><br><span style="font-size:11px;color:#6b6b6b">'+esc(ft.f)+'</span></div>';
       return ft ? '<div style="margin:0 0 6px"><span style="font-size:22px;font-family:\''+esc(ft.f)+'\','+ft.g+'">'+esc(sampleName())+'</span> <span style="font-size:11px;color:#6b6b6b">'+esc(ft.f)+'</span></div>' : '<div>'+esc(n)+'</div>'; }).join('');
   }
   if(s.type === 'files'){
@@ -944,8 +946,42 @@ function buildEmailHTML(){
   return h + '</div>';
 }
 
+function drawFontSample(ft){
+  const name = sampleName(), sub = sampleSub(), fs = 96;
+  const font = fs + 'px "' + ft.f + '", ' + ft.g;
+  const m = document.createElement('canvas').getContext('2d'); m.font = font;
+  const w = Math.min(1400, Math.ceil(m.measureText(name).width) + 80);
+  const c = document.createElement('canvas');
+  c.width = Math.max(420, w); c.height = Math.round(fs * 1.7) + (sub ? 56 : 0);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.fillStyle = '#141414'; ctx.textBaseline = 'middle'; ctx.font = font;
+  ctx.fillText(name, 40, Math.round(fs * 0.85));
+  if(sub){ ctx.fillStyle = '#6b6b6b'; ctx.font = '600 26px Arial, sans-serif'; ctx.fillText(sub.toUpperCase(), 42, Math.round(fs * 1.7) + 12); }
+  return c.toDataURL('image/png').split(',')[1];
+}
+/* e-mails não carregam fontes da internet: por isso a amostra de cada fonte escolhida vai como imagem */
+async function makeFontSamples(){
+  FONT_IMGS = {};
+  for(const bid of visibleBlocks()){
+    for(const f of BLOCKS[bid].fields){
+      if(f.type !== 'fonts' || !condOk(f)) continue;
+      const chosen = Array.isArray(S.V[f.id]) ? S.V[f.id] : [];
+      for(let i = 0; i < chosen.length; i++){
+        const ft = FONTS.find(x => x.f === chosen[i]); if(!ft) continue;
+        try{
+          if(document.fonts && document.fonts.load) await document.fonts.load('96px "' + ft.f + '"', sampleName());
+          if(document.fonts && document.fonts.check && !document.fonts.check('96px "' + ft.f + '"', sampleName())) continue;
+          (FONT_IMGS[f.id] = FONT_IMGS[f.id] || {})[i] = {family:ft.f, data:drawFontSample(ft)};
+        }catch(e){}
+      }
+    }
+  }
+}
+
 function genId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
-function buildPayload(){
+async function buildPayload(){
+  await makeFontSamples();
   const arquivos = [];
   visibleBlocks().forEach(bid => BLOCKS[bid].fields.forEach(f => {
     if(f.type !== 'files' || !condOk(f)) return;
@@ -954,11 +990,14 @@ function buildPayload(){
       if(m) arquivos.push({field:f.id, label:f.label, index:i, name:x.name, type:m[1], data:m[2]});
     });
   }));
-  return {
+  Object.keys(FONT_IMGS).forEach(fid => Object.keys(FONT_IMGS[fid]).forEach(i => arquivos.push({field:'fontsample_' + fid, label:'Amostra da fonte', index:Number(i), name:'amostra-' + FONT_IMGS[fid][i].family + '.png', type:'image/png', data:FONT_IMGS[fid][i].data})));
+  const payload = {
     nome: S.V.g_nome || '', empresa: S.V.g_empresa || '', whatsapp: S.V.g_whatsapp || '', email: S.V.g_email || '',
     servicos: S.services.map(id => SERVICES.find(s => s.id === id).label),
     texto: buildText(), html: fileHTML('token'), emailHtml: buildEmailHTML(), arquivos
   };
+  FONT_IMGS = {};
+  return payload;
 }
 function showStatus(ok, html){ const st = $('#sendstatus'); st.className = 'sendstatus ' + (ok ? 'ok' : 'fail'); st.innerHTML = html; st.hidden = false; st.scrollIntoView({behavior:'smooth', block:'nearest'}); }
 async function send(){
@@ -968,7 +1007,7 @@ async function send(){
   sendingId = sendingId || genId();
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 150000);
   try{
-    const res = await fetch(CFG.endpoint, {method:'POST', body:JSON.stringify(Object.assign({id:sendingId}, buildPayload())), signal:ctrl.signal});
+    const res = await fetch(CFG.endpoint, {method:'POST', body:JSON.stringify(Object.assign({id:sendingId}, await buildPayload())), signal:ctrl.signal});
     const j = await res.json();
     if(!j || !j.ok) throw new Error((j && j.erro) || 'Resposta inesperada');
     sentOk = true; sendingId = null;
