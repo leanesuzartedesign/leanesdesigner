@@ -174,6 +174,13 @@ export interface Evento {
 // Cada pasta busca só na própria subpasta — enquanto ela estiver vazia (peças
 // ainda não subiram pro repositório), o glob retorna um array vazio, e
 // Eventos.astro filtra a pasta pra fora em vez de mostrá-la em branco.
+const flimla = pasta(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/eventos/flimla/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+  ),
+);
+
 const literarte = pasta(
   import.meta.glob<{ default: ImageMetadata }>(
     "../assets/eventos/literarte/*.{png,jpg,jpeg,webp}",
@@ -196,6 +203,7 @@ const eTudoNosso = pasta(
 );
 
 export const eventos: Evento[] = [
+  { slug: "flimla", nome: "FLIMLÁ 2026", pecas: flimla },
   { slug: "literarte", nome: "Literarte Intercultural", pecas: literarte },
   {
     slug: "arraia-do-instituto",

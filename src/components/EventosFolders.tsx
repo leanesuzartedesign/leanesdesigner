@@ -25,7 +25,7 @@ interface Props {
 const MOLA = { type: "spring" as const, stiffness: 300, damping: 24 };
 
 /**
- * Cada pasta é um cartão com formato de pasta de verdade (aba + corpo);
+ * Cada pasta fechada mostra cartas de foto espiando atrás de um vidro fosco;
  * ao clicar, abre com física de mola e as peças saem em leque, com um
  * puxador que fecha se arrastado pra baixo. Um segundo clique — numa
  * peça já aberta — mostra essa peça em destaque, grande, por cima de
@@ -46,17 +46,6 @@ export default function EventosFolders({ eventos }: Props) {
 
   return (
     <>
-      {/* Gradiente único, compartilhado por todas as pastas — dá o volume
-          clarinho-em-cima/escuro-embaixo do ícone de referência. */}
-      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-        <defs>
-          <linearGradient id="evt-gradiente-pasta" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#cf8058" />
-            <stop offset="1" stopColor="#8a4526" />
-          </linearGradient>
-        </defs>
-      </svg>
-
       <ul className="evt-lista">
         {eventos.map((evento) => {
           const estaAberta = aberta === evento.slug;
@@ -77,28 +66,39 @@ export default function EventosFolders({ eventos }: Props) {
                 aria-expanded={estaAberta}
                 onClick={alterna}
               >
-                <motion.svg
-                  className="evt-icone"
-                  viewBox="0 0 100 75"
-                  aria-hidden="true"
-                  focusable="false"
-                  animate={{ rotateX: estaAberta ? -10 : 0, y: estaAberta ? -2 : 0 }}
-                  transition={MOLA}
-                  style={{ transformOrigin: "50% 0%", transformPerspective: 400 }}
-                >
-                  {/* Um traçado só — aba e corpo são a mesma peça, sem
-                      emenda nem espaço entre as duas partes. */}
-                  <path
-                    d="M 12,0 L 38,0 L 46,8 L 88,8 A 6,6 0 0 1 94,14 L 94,62 A 6,6 0 0 1 88,68 L 12,68 A 6,6 0 0 1 6,62 L 6,6 A 6,6 0 0 1 12,0 Z"
-                    fill="url(#evt-gradiente-pasta)"
-                  />
-                </motion.svg>
-                <span className="evt-conteudo">
-                  <span className="evt-nome">{evento.nome}</span>
-                  <span className="evt-contagem">
-                    {evento.fotos.length}{" "}
-                    {evento.fotos.length === 1 ? "peça" : "peças"}
+                {/* Pasta fechada: fundo cinza com aba, três cartas de foto
+                    espiando por trás e um painel de vidro fosco na frente. */}
+                <span className="evt-pasta" aria-hidden="true">
+                  <span className="evt-fundo" />
+                  {evento.fotos.slice(0, 3).map((foto, i) => (
+                    <img
+                      key={foto.src}
+                      className={`evt-capa evt-capa-${i}`}
+                      src={foto.src}
+                      alt=""
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  ))}
+                  <span className="evt-vidro">
+                    <span className="evt-seta">
+                      <svg viewBox="0 0 24 24" focusable="false">
+                        <path
+                          d="M7 17 17 7M9 7h8v8"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
                   </span>
+                </span>
+                <span className="evt-nome">{evento.nome}</span>
+                <span className="evt-pilula">
+                  {evento.fotos.length}{" "}
+                  {evento.fotos.length === 1 ? "peça" : "peças"}
                 </span>
               </button>
 

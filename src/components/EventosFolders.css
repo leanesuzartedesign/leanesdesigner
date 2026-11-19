@@ -19,63 +19,181 @@
 }
 
 .evt-gatilho {
-  position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
   padding: 0;
   border: none;
   background: none;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   font: inherit;
   color: inherit;
 }
 
-/* O desenho da pasta preenche o cartão inteiro — aba + corpo com
-   gradiente, é ele que faz de moldura, não uma caixa por fora. */
-.evt-icone {
-  position: absolute;
-  inset: 0;
+/* Pasta fechada: fundo cinza com aba, três cartas de foto espiando por
+   trás e um painel de vidro fosco na frente. Posições em % da própria
+   pasta, pra escalar junto com o cartão. */
+.evt-pasta {
+  position: relative;
+  display: block;
   width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 0.85rem 1.5rem rgb(0 0 0 / 0.22));
+  aspect-ratio: 1.5 / 1;
 }
 
-/* Posicionado nas proporções do próprio desenho (viewBox 100×75): o
-   corpo (parte larga) vai de y=8 a y=68 — o texto fica na metade de
-   baixo dessa área, longe da emenda com a aba. */
-.evt-conteudo {
+.evt-fundo {
   position: absolute;
-  left: 14%;
-  right: 10%;
-  top: 46%;
-  bottom: 12%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.35rem;
+  left: 18%;
+  right: 18%;
+  top: 9%;
+  bottom: 3%;
+  background: #dcdcd9;
+  border-radius: 0.9rem;
+}
+
+/* A aba, em cima à esquerda, com a ponta cortada na diagonal. */
+.evt-fundo::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -9%;
+  width: 40%;
+  height: 16%;
+  background: inherit;
+  border-radius: 0.9rem 0.9rem 0 0;
+  clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
+}
+
+.evt-capa {
+  position: absolute;
+  width: 35%;
+  height: 65.6%; /* 4:5 em relação à largura (35% de uma pasta 1.5:1) */
+  object-fit: cover;
+  box-sizing: border-box;
+  border: 0.28rem solid #fff;
+  border-radius: 0.9rem;
+  background: #fff;
+  box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 0.12);
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.2s ease;
+}
+
+.evt-capa-0 {
+  left: 32.5%;
+  top: 10%;
+  z-index: 2;
+}
+
+.evt-capa-1 {
+  left: 3%;
+  top: 17%;
+  z-index: 1;
+  transform: rotate(-11deg);
+}
+
+.evt-capa-2 {
+  left: 62%;
+  top: 13%;
+  z-index: 1;
+  transform: rotate(11deg);
+}
+
+@media (hover: hover) {
+  .evt-gatilho:hover .evt-capa-0 {
+    transform: translateY(-5%);
+  }
+  .evt-gatilho:hover .evt-capa-1 {
+    transform: translateX(-4%) rotate(-15deg);
+  }
+  .evt-gatilho:hover .evt-capa-2 {
+    transform: translateX(4%) rotate(15deg);
+  }
+}
+
+.evt-vidro {
+  position: absolute;
+  z-index: 3;
+  left: 18%;
+  right: 18%;
+  top: 50%;
+  bottom: 3%;
+  border-radius: 1.1rem;
+  background: rgb(255 255 255 / 0.5);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 0.75);
+  box-shadow:
+    0 0.7rem 1.4rem rgb(0 0 0 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.85);
+  transition:
+    transform 0.35s ease,
+    opacity 0.2s ease;
+}
+
+.evt-seta {
+  position: absolute;
+  right: 7%;
+  bottom: 14%;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #2b2b2b;
+  color: #fff;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.evt-seta svg {
+  width: 55%;
+  height: 55%;
+}
+
+/* Aberta: as cartas da capa dão lugar ao leque e o vidro desce. */
+.evt-item[data-aberta="true"] .evt-capa {
+  opacity: 0;
+}
+
+.evt-item[data-aberta="true"] .evt-vidro {
+  opacity: 0;
+  transform: translateY(14%);
+}
+
+.evt-item[data-aberta="true"] .evt-seta {
+  transform: rotate(90deg);
 }
 
 .evt-nome {
-  font-weight: 600;
-  font-size: 1.05rem;
-  color: #fff;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+  display: block;
+  margin-top: 0.9rem;
+  font-weight: 800;
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--ink);
 }
 
-.evt-contagem {
-  color: rgb(255 255 255 / 0.8);
-  font-size: var(--meta);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+.evt-pilula {
+  display: inline-block;
+  margin-top: 0.7rem;
+  padding: 0.3rem 1.2rem;
+  border-radius: 999px;
+  background: #e9e9e7;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
 }
 
 /* Painel que estoura por cima do cartão quando a pasta abre. */
 .evt-painel {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  aspect-ratio: 1.5 / 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -86,7 +204,8 @@
 .evt-leque {
   position: relative;
   width: 100%;
-  height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,7 +213,7 @@
 
 .evt-foto {
   position: absolute;
-  width: clamp(6rem, 45%, 9rem);
+  width: clamp(5rem, 30%, 7.5rem);
   height: auto;
   border-radius: 2px;
   box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.25);
