@@ -183,16 +183,10 @@
       </ol>
       <ol class="steps" id="steps-manual">
         <li>Toque em <b>Enviar pelo WhatsApp</b> — abre a conversa já com o seu resumo escrito.</li>
-        <li>Se você anexou imagens, toque também em <b>Compartilhar / Baixar arquivo</b> e envie esse arquivo na mesma conversa (ele leva as imagens e as cores).</li>
       </ol>
       <div class="actions">
         <button type="button" class="btn primary" id="btn-send" hidden>Enviar para a Leane</button>
         <button type="button" class="btn primary" id="btn-wa">Enviar pelo WhatsApp</button>
-        <button type="button" class="btn" id="btn-share" hidden>Compartilhar arquivo do briefing</button>
-        <button type="button" class="btn" id="btn-download">Baixar arquivo do briefing</button>
-        <button type="button" class="btn" id="btn-mail">Enviar por e-mail</button>
-        <button type="button" class="btn" id="btn-copy">Copiar resumo em texto</button>
-        <button type="button" class="btn" id="btn-print">Imprimir / salvar PDF</button>
       </div>
       <div id="sendstatus" class="sendstatus" hidden></div>
     </div>
@@ -896,8 +890,6 @@ function review(){
   $('#btn-send').hidden = !hasEp; $('#steps-send').hidden = !hasEp; $('#steps-manual').hidden = hasEp;
   $('#btn-wa').classList.toggle('primary', !hasEp);
   $('#btn-wa').textContent = hasEp ? 'Avisar a Leane pelo WhatsApp' : 'Enviar pelo WhatsApp';
-  const file = new File([fileHTML()], fileName(), {type:'text/html'});
-  $('#btn-share').hidden = !(navigator.canShare && navigator.canShare({files:[file]}));
   $('#review-out').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -982,7 +974,7 @@ async function send(){
     sentOk = true; sendingId = null;
     showStatus(true, '<b>✔ Briefing enviado!</b> A Leane já recebeu as suas respostas, as cores e as imagens. Se quiser, toque em <b>Avisar a Leane pelo WhatsApp</b>.');
   }catch(e){
-    showStatus(false, '<b>Não consegui enviar agora.</b> Verifique a internet e tente de novo. Se não der, use o WhatsApp ou o arquivo do briefing — suas respostas continuam salvas aqui.');
+    showStatus(false, '<b>Não consegui enviar agora.</b> Verifique a internet e tente de novo. Se não der, toque em <b>Avisar a Leane pelo WhatsApp</b>: ele leva o resumo das suas respostas. Elas continuam salvas aqui.');
   }finally{
     clearTimeout(timer); sending = false; btn.disabled = false; btn.textContent = 'Enviar para a Leane';
   }
@@ -1023,11 +1015,6 @@ function init(){
     window.open('https://wa.me/' + CFG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
   });
   $('#btn-send').addEventListener('click', send);
-  $('#btn-mail').addEventListener('click', () => { location.href = 'mailto:' + CFG.email + '?subject=' + encodeURIComponent('Briefing — ' + (S.V.g_nome || '')) + '&body=' + encodeURIComponent(buildText(1200)); });
-  $('#btn-download').addEventListener('click', download);
-  $('#btn-share').addEventListener('click', share);
-  $('#btn-copy').addEventListener('click', copyText);
-  $('#btn-print').addEventListener('click', () => { $('#print-area').innerHTML = buildDoc(); window.print(); });
   $('#btn-clear').addEventListener('click', e => { e.preventDefault(); if(confirm('Apagar tudo o que você preencheu e começar de novo?')){ try{ localStorage.removeItem(KEY); }catch(_){} location.reload(); } });
 }
 init();
