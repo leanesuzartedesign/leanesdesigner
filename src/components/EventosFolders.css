@@ -166,10 +166,10 @@
 .evt-nome {
   display: block;
   margin-top: 0.9rem;
-  font-weight: 800;
-  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
-  line-height: 1.1;
-  letter-spacing: 0.01em;
+  font-weight: 600;
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   text-wrap: balance;
   color: var(--ink);

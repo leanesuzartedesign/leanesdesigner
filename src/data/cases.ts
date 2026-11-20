@@ -176,7 +176,7 @@ export interface Evento {
 // Eventos.astro filtra a pasta pra fora em vez de mostrá-la em branco.
 const flimla = pasta(
   import.meta.glob<{ default: ImageMetadata }>(
-    "../assets/eventos/flimla/*.{png,jpg,jpeg,webp}",
+    "../assets/eventos/flimla-fotos/*.{png,jpg,jpeg,webp}",
     { eager: true },
   ),
 );
