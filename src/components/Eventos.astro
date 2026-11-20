@@ -34,7 +34,7 @@ const eventosParaIlha = await Promise.all(
           width: miniatura.attributes.width,
           height: miniatura.attributes.height,
           srcGrande: grande.src,
-          alt: `Peça da identidade visual — ${evento.nome}`,
+          alt: `Peça gráfica — ${evento.nome}`,
         };
       }),
     ),
@@ -45,10 +45,10 @@ const eventosParaIlha = await Promise.all(
 {
   eventosParaIlha.length > 0 && (
     <section class="eventos" aria-labelledby="eventos-title">
-      <SectionHead index="06" label="Eventos" id="eventos-title" />
+      <SectionHead index="06" label="Eventos e campanhas" id="eventos-title" />
       <p class="linha-apoio">
-        Identidade visual e material gráfico para eventos, do conceito ao
-        impresso.
+        Identidade visual e material gráfico para eventos e campanhas: do
+        conceito ao impresso, em outdoor, ambientes e painéis.
       </p>
 
       <EventosFolders eventos={eventosParaIlha} client:visible />

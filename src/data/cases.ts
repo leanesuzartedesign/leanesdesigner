@@ -181,6 +181,13 @@ const flimla = pasta(
   ),
 );
 
+const grupoPed = pasta(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/eventos/grupo-ped/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+  ),
+);
+
 const literarte = pasta(
   import.meta.glob<{ default: ImageMetadata }>(
     "../assets/eventos/literarte/*.{png,jpg,jpeg,webp}",
@@ -190,7 +197,11 @@ const literarte = pasta(
 
 const arraiaDoInstituto = pasta(
   import.meta.glob<{ default: ImageMetadata }>(
-    "../assets/eventos/arraia-do-instituto/*.{png,jpg,jpeg,webp}",
+    [
+      "../assets/eventos/arraia-do-instituto/*.{png,jpg,jpeg,webp}",
+      // 02 é o modelo "Produção" com o campo em branco — fora do portfólio.
+      "!../assets/eventos/arraia-do-instituto/02.png",
+    ],
     { eager: true },
   ),
 );
@@ -204,6 +215,7 @@ const eTudoNosso = pasta(
 
 export const eventos: Evento[] = [
   { slug: "flimla", nome: "FLIMLÁ 2026", pecas: flimla },
+  { slug: "grupo-ped", nome: "Campanha de Matrículas", pecas: grupoPed },
   { slug: "literarte", nome: "Literarte Intercultural", pecas: literarte },
   {
     slug: "arraia-do-instituto",

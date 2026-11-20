@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import "./EventosFolders.css";
@@ -7,7 +7,7 @@ interface Foto {
   src: string;
   width: number;
   height: number;
-  /** Versão maior, só carregada quando a pessoa abre a foto em destaque. */
+  /** Versão maior, usada no slide. */
   srcGrande: string;
   alt: string;
 }
@@ -22,69 +22,170 @@ interface Props {
   eventos: Evento[];
 }
 
-const MOLA = { type: "spring" as const, stiffness: 300, damping: 24 };
+const MOLA = { type: "spring" as const, stiffness: 300, damping: 30 };
 
 /**
- * Cada pasta fechada mostra cartas de foto espiando atrás de um vidro fosco;
- * ao clicar, abre com física de mola e as peças saem em leque, com um
- * puxador que fecha se arrastado pra baixo. Um segundo clique — numa
- * peça já aberta — mostra essa peça em destaque, grande, por cima de
- * tudo (é o "abrir a pasta, depois abrir a foto" pedido).
+ * Cada pasta fechada mostra cartas de foto espiando atrás de um vidro fosco.
+ * Ao clicar, abre um slide em tela cheia com todas as peças do evento:
+ * setas, deslizar com o dedo/mouse, miniaturas embaixo e um botão de fechar.
  */
 export default function EventosFolders({ eventos }: Props) {
-  const [aberta, setAberta] = useState<string | null>(null);
-  const [fotoGrande, setFotoGrande] = useState<Foto | null>(null);
+  const [aberto, setAberto] = useState<string | null>(null);
+  const [indice, setIndice] = useState(0);
+  const [direcao, setDirecao] = useState(1);
+  const gatilhoAnterior = useRef<HTMLElement | null>(null);
+
+  const evento = eventos.find((e) => e.slug === aberto) ?? null;
+  const total = evento?.fotos.length ?? 0;
+
+  const abrir = (slug: string, el: HTMLElement) => {
+    gatilhoAnterior.current = el;
+    setIndice(0);
+    setDirecao(1);
+    setAberto(slug);
+  };
+
+  const fechar = useCallback(() => {
+    setAberto(null);
+    gatilhoAnterior.current?.focus();
+  }, []);
+
+  const irPara = useCallback(
+    (novo: number, dir?: number) => {
+      if (total === 0) return;
+      const alvo = (novo + total) % total;
+      setDirecao(dir ?? (novo >= indice ? 1 : -1));
+      setIndice(alvo);
+    },
+    [total, indice],
+  );
 
   useEffect(() => {
-    if (!fotoGrande) return;
+    if (!aberto) return;
     const aoTeclar = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setFotoGrande(null);
+      if (e.key === "Escape") fechar();
+      else if (e.key === "ArrowRight") irPara(indice + 1, 1);
+      else if (e.key === "ArrowLeft") irPara(indice - 1, -1);
     };
     document.addEventListener("keydown", aoTeclar);
-    return () => document.removeEventListener("keydown", aoTeclar);
-  }, [fotoGrande]);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", aoTeclar);
+      document.body.style.overflow = overflow;
+    };
+  }, [aberto, indice, irPara, fechar]);
+
+  const aoSoltar = (_: unknown, info: PanInfo) => {
+    if (info.offset.x < -60 || info.velocity.x < -500) irPara(indice + 1, 1);
+    else if (info.offset.x > 60 || info.velocity.x > 500) irPara(indice - 1, -1);
+  };
+
+  const foto = evento?.fotos[indice];
 
   return (
     <>
       <ul className="evt-lista">
-        {eventos.map((evento) => {
-          const estaAberta = aberta === evento.slug;
-          const alterna = () => setAberta(estaAberta ? null : evento.slug);
+        {eventos.map((ev) => (
+          <li key={ev.slug} className="evt-item">
+            <button
+              type="button"
+              className="evt-gatilho"
+              aria-haspopup="dialog"
+              onClick={(e) => abrir(ev.slug, e.currentTarget)}
+            >
+              {/* Pasta fechada: fundo cinza com aba, três cartas de foto
+                  espiando por trás e um painel de vidro fosco na frente. */}
+              <span className="evt-pasta" aria-hidden="true">
+                <span className="evt-fundo" />
+                {ev.fotos.slice(0, 3).map((f, i) => (
+                  <img
+                    key={f.src}
+                    className={`evt-capa evt-capa-${i}`}
+                    src={f.src}
+                    alt=""
+                    loading="lazy"
+                    draggable={false}
+                  />
+                ))}
+                <span className="evt-vidro">
+                  <span className="evt-seta">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                      <path
+                        d="M7 17 17 7M9 7h8v8"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </span>
+              <span className="evt-nome">{ev.nome}</span>
+              <span className="evt-pilula">
+                {ev.fotos.length} {ev.fotos.length === 1 ? "peça" : "peças"}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
 
-          const fechaSeArrastouBastante = (
-            _: MouseEvent | TouchEvent | PointerEvent,
-            info: PanInfo,
-          ) => {
-            if (info.offset.y > 70) setAberta(null);
-          };
-
-          return (
-            <li key={evento.slug} className="evt-item" data-aberta={estaAberta}>
-              <button
-                type="button"
-                className="evt-gatilho"
-                aria-expanded={estaAberta}
-                onClick={alterna}
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {evento && foto && (
+              <motion.div
+                className="evt-slide"
+                role="dialog"
+                aria-modal="true"
+                aria-label={evento.nome}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
               >
-                {/* Pasta fechada: fundo cinza com aba, três cartas de foto
-                    espiando por trás e um painel de vidro fosco na frente. */}
-                <span className="evt-pasta" aria-hidden="true">
-                  <span className="evt-fundo" />
-                  {evento.fotos.slice(0, 3).map((foto, i) => (
-                    <img
-                      key={foto.src}
-                      className={`evt-capa evt-capa-${i}`}
-                      src={foto.src}
-                      alt=""
-                      loading="lazy"
-                      draggable={false}
-                    />
-                  ))}
-                  <span className="evt-vidro">
-                    <span className="evt-seta">
-                      <svg viewBox="0 0 24 24" focusable="false">
+                <header className="evt-slide-topo">
+                  <div className="evt-slide-titulo">
+                    <strong>{evento.nome}</strong>
+                    <span>
+                      {indice + 1} / {total}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="evt-slide-fechar"
+                    aria-label="Fechar"
+                    onClick={fechar}
+                    autoFocus
+                  >
+                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                      <path
+                        d="M6 6l12 12M18 6 6 18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                </header>
+
+                <div className="evt-slide-palco" onClick={fechar}>
+                  {total > 1 && (
+                    <button
+                      type="button"
+                      className="evt-slide-seta evt-slide-seta-esq"
+                      aria-label="Peça anterior"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        irPara(indice - 1, -1);
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                         <path
-                          d="M7 17 17 7M9 7h8v8"
+                          d="M15 5l-7 7 7 7"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth={2}
@@ -92,116 +193,75 @@ export default function EventosFolders({ eventos }: Props) {
                           strokeLinejoin="round"
                         />
                       </svg>
-                    </span>
-                  </span>
-                </span>
-                <span className="evt-nome">{evento.nome}</span>
-                <span className="evt-pilula">
-                  {evento.fotos.length}{" "}
-                  {evento.fotos.length === 1 ? "peça" : "peças"}
-                </span>
-              </button>
+                    </button>
+                  )}
 
-              <AnimatePresence>
-                {estaAberta && (
-                  <motion.div
-                    className="evt-painel"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <div className="evt-leque">
-                      {evento.fotos.map((foto, i, arr) => {
-                        const meio = (arr.length - 1) / 2;
-                        const d = i - meio;
-                        // Com mais peças, cada uma abre um pouco menos de
-                        // leque — senão as pontas saem rodadas demais e o
-                        // espalhado fica maior que o cartão.
-                        const escala = Math.min(1, 5 / arr.length);
-                        return (
-                          <motion.img
-                            key={foto.src}
-                            src={foto.src}
-                            alt={foto.alt}
-                            width={foto.width}
-                            height={foto.height}
-                            className="evt-foto"
-                            drag
-                            dragElastic={0.4}
-                            dragMomentum={false}
-                            initial={{ opacity: 0, scale: 0.4, y: 30, rotate: 0 }}
-                            animate={{
-                              opacity: 1,
-                              scale: 1,
-                              x: d * 34 * escala,
-                              y: -Math.abs(d) * 10 * escala,
-                              rotate: d * 9 * escala,
-                            }}
-                            exit={{ opacity: 0, scale: 0.4, y: 30, rotate: 0 }}
-                            transition={{ ...MOLA, delay: i * 0.045 }}
-                            whileHover={{ scale: 1.06 }}
-                            whileDrag={{ scale: 1.1, zIndex: 10 }}
-                            onTap={() => setFotoGrande(foto)}
-                          />
-                        );
-                      })}
-                    </div>
+                  <AnimatePresence initial={false} custom={direcao} mode="popLayout">
+                    <motion.img
+                      key={foto.srcGrande}
+                      src={foto.srcGrande}
+                      alt={foto.alt}
+                      className="evt-slide-img"
+                      custom={direcao}
+                      variants={{
+                        entra: (d: number) => ({ opacity: 0, x: d * 60 }),
+                        centro: { opacity: 1, x: 0 },
+                        sai: (d: number) => ({ opacity: 0, x: d * -60 }),
+                      }}
+                      initial="entra"
+                      animate="centro"
+                      exit="sai"
+                      transition={MOLA}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={0.5}
+                      onDragEnd={aoSoltar}
+                      onClick={(e) => e.stopPropagation()}
+                      draggable={false}
+                    />
+                  </AnimatePresence>
 
-                    <motion.div
-                      className="evt-puxador"
-                      drag="y"
-                      dragConstraints={{ top: 0, bottom: 0 }}
-                      dragElastic={{ top: 0, bottom: 0.6 }}
-                      onDragEnd={fechaSeArrastouBastante}
+                  {total > 1 && (
+                    <button
+                      type="button"
+                      className="evt-slide-seta evt-slide-seta-dir"
+                      aria-label="Próxima peça"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        irPara(indice + 1, 1);
+                      }}
                     >
-                      <span className="evt-puxador-barra" aria-hidden="true" />
-                      <span className="evt-dica">
-                        Toque na imagem pra ampliar · arraste pra baixo pra
-                        fechar
-                      </span>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </li>
-          );
-        })}
-      </ul>
+                      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path
+                          d="M9 5l7 7-7 7"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
 
-      {typeof document !== "undefined" &&
-        createPortal(
-          <AnimatePresence>
-            {fotoGrande && (
-              <motion.div
-                className="evt-lightbox"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setFotoGrande(null)}
-              >
-                <motion.div
-                  className="evt-lightbox-cartao"
-                  initial={{ scale: 0.85, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.85, opacity: 0 }}
-                  transition={MOLA}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <img
-                    src={fotoGrande.srcGrande}
-                    alt={fotoGrande.alt}
-                    className="evt-lightbox-img"
-                  />
-                  <button
-                    type="button"
-                    className="evt-lightbox-fechar"
-                    aria-label="Fechar"
-                    onClick={() => setFotoGrande(null)}
-                  >
-                    ×
-                  </button>
-                </motion.div>
+                {total > 1 && (
+                  <div className="evt-slide-minis" role="tablist">
+                    {evento.fotos.map((f, i) => (
+                      <button
+                        key={f.src}
+                        type="button"
+                        role="tab"
+                        aria-selected={i === indice}
+                        aria-label={`Peça ${i + 1}`}
+                        className="evt-mini"
+                        onClick={() => irPara(i)}
+                      >
+                        <img src={f.src} alt="" draggable={false} />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>,
